@@ -10,9 +10,7 @@
   - name: remove files and dirs
     file: name={{ item }} state=absent
     with_items:
-    - "{{ ETCD_DATA_DIR }}"
-    - "{{ ETCD_WAL_DIR }}"
+    - "/var/lib/etcd"
     - "/backup/k8s"
     - "/etc/systemd/system/etcd.service"
-  ignore_errors: true
   when: "inventory_hostname in groups['etcd']"

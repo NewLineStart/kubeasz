@@ -1,17 +1,16 @@
-# https://kubernetes.io/docs/tasks/run-application/run-replicated-stateful-application/
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: mysql
   labels:
     app: mysql
-    app.kubernetes.io/name: mysql
 data:
-  primary.cnf: |
-    # Apply this config only on the primary.
+  master.cnf: |
+    # Apply this config only on the master.
     [mysqld]
     log-bin
-  replica.cnf: |
-    # Apply this config only on replicas.
+  slave.cnf: |
+    # Apply this config only on slaves.
     [mysqld]
     super-read-only
+

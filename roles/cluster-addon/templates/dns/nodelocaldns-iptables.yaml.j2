@@ -139,16 +139,14 @@ spec:
       containers:
       - name: node-cache
         #image: k8s.gcr.io/dns/k8s-dns-node-cache:1.16.0
-        image: easzlab.io.local:5000/easzlab/k8s-dns-node-cache:{{ dnsNodeCacheVer }}
+        image: easzlab/k8s-dns-node-cache:1.16.0
         resources:
           requests:
             cpu: 25m
             memory: 5Mi
         args: [ "-localip", "{{ LOCAL_DNS_CACHE }},{{ CLUSTER_DNS_SVC_IP }}", "-conf", "/etc/Corefile", "-upstreamsvc", "kube-dns-upstream" ]
         securityContext:
-          capabilities:
-            add:
-            - NET_ADMIN
+          privileged: true
         ports:
         - containerPort: 53
           name: dns

@@ -5,15 +5,9 @@ metadata:
   labels:
     run: dingtalk
   name: webhook-dingtalk
-  namespace: monitor
+  namespace: monitoring
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-      run: dingtalk
-  selector:
-    matchLabels:
-      run: dingtalk
   template:
     metadata:
       labels:
@@ -37,7 +31,7 @@ metadata:
   labels:
     run: dingtalk
   name: webhook-dingtalk
-  namespace: monitor
+  namespace: monitoring
 spec:
   ports:
   - port: 8060

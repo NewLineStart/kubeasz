@@ -7,7 +7,7 @@ Documentation=https://github.com/coreos
 
 [Service]
 Type=notify
-WorkingDirectory={{ ETCD_DATA_DIR }}
+WorkingDirectory=/var/lib/etcd/
 ExecStart={{ bin_dir }}/etcd \
   --name=etcd-{{ inventory_hostname }} \
   --cert-file={{ ca_dir }}/etcd.pem \

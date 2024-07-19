@@ -27,16 +27,11 @@
   - 'HELM_TLS_ENABLE'
   when: 'DEL_ENV == "yes"'
 
-- name: 删除 k8s_nodename 在节点的 /etc/hosts 地址解析
-  blockinfile:
-    path: /etc/hosts
-    state: absent
-    marker: "### {mark} KUBEASZ MANAGED BLOCK"
-
-  #- name: remove binaries
+  #- name: remove binaries and offline images
   #  file: name={{ item }} state=absent
   #  with_items:
   #  - "/opt/kube/bin"
+  #  - "/opt/kube/images"
   #  when: 'DEL_ETCD == "yes" and DEL_NODE == "yes" and DEL_MASTER == "yes"'
 
 - name: 重启提示 WARNNING

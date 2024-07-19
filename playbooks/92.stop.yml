@@ -17,7 +17,7 @@
   - name: stopping external loadbalance
     service: name={{ item }} state=stopped enabled=no
     with_items:
-    - l4lb
+    - haproxy
     - keepalived
 
 - hosts:

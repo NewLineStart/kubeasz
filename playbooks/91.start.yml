@@ -42,5 +42,5 @@
   - name: starting external loadbalance
     service: name={{ item }} state=started enabled=yes
     with_items:
-    - l4lb
+    - haproxy
     - keepalived

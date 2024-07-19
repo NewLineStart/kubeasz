@@ -11,10 +11,6 @@ metadata:
 spec:
   serviceName: {{ template "elasticsearch.data.fullname" . }}
   replicas: {{ .Values.data.replicas }}
-  selector:
-    matchLabels:
-      app: {{ template "elasticsearch.name" . }}
-      component: "{{ .Values.data.name }}"
   template:
     metadata:
       labels:
@@ -66,7 +62,7 @@ spec:
       # see https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html
       # and https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html#mlockall
       - name: "sysctl"
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}" 
+        image: "busybox"
         imagePullPolicy: "Always"
         command: ["sysctl", "-w", "vm.max_map_count=262144"]
         securityContext:

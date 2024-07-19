@@ -1,6 +1,6 @@
 kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1
-address: 0.0.0.0
+address: {{ inventory_hostname }}
 authentication:
   anonymous:
     enabled: false
@@ -37,15 +37,15 @@ enforceNodeAllocatable:
 eventBurst: 10
 eventRecordQPS: 5
 evictionHard:
-  imagefs.available: 15%
-  memory.available: 300Mi
-  nodefs.available: 10%
-  nodefs.inodesFree: 5%
+  imagefs.available: 1%
+  memory.available: 100Mi
+  nodefs.available: 1%
+  nodefs.inodesFree: 1%
 evictionPressureTransitionPeriod: 5m0s
 failSwapOn: true
 fileCheckFrequency: 40s
 hairpinMode: hairpin-veth 
-healthzBindAddress: 0.0.0.0
+healthzBindAddress: {{ inventory_hostname }}
 healthzPort: 10248
 httpCheckFrequency: 40s
 imageGCHighThresholdPercent: 85
@@ -54,35 +54,34 @@ imageMinimumGCAge: 2m0s
 {% if KUBE_RESERVED_ENABLED == "yes" %}
 kubeReservedCgroup: /podruntime.slice
 kubeReserved:
-  cpu: 500m
-  memory: 1000Mi
-  pid: "1000"
+  memory: 400Mi
 {% endif %}
 kubeAPIBurst: 100
 kubeAPIQPS: 50
 makeIPTablesUtilChains: true
 maxOpenFiles: 1000000
-maxParallelImagePulls: 5
 maxPods: {{ MAX_PODS }}
 nodeLeaseDurationSeconds: 40
 nodeStatusReportFrequency: 1m0s
 nodeStatusUpdateFrequency: 10s
 oomScoreAdj: -999
-podPidsLimit: {{ POD_MAX_PIDS }}
+podPidsLimit: -1
 port: 10250
 # disable readOnlyPort 
 readOnlyPort: 0
+{% if ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int > 16 %}
+resolvConf: /run/systemd/resolve/resolv.conf
+{% else %}
 resolvConf: /etc/resolv.conf
+{% endif %}
 runtimeRequestTimeout: 2m0s
-serializeImagePulls: false
+serializeImagePulls: true
 streamingConnectionIdleTimeout: 4h0m0s
 syncFrequency: 1m0s
 {% if SYS_RESERVED_ENABLED == "yes" %}
 systemReservedCgroup: /system.slice
 systemReserved:
-  cpu: 500m
   memory: 1000Mi
-  pid: "5000"
 {% endif %}
 tlsCertFile: {{ ca_dir }}/kubelet.pem
 tlsPrivateKeyFile: {{ ca_dir }}/kubelet-key.pem
