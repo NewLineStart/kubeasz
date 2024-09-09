@@ -10,6 +10,7 @@ ExecStart={{ bin_dir }}/kube-controller-manager \
   --cluster-name=kubernetes \
   --cluster-signing-cert-file={{ ca_dir }}/ca.pem \
   --cluster-signing-key-file={{ ca_dir }}/ca-key.pem \
+  --tls-cipher-suites=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA \
   --kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
   --leader-elect=true \
   --node-cidr-mask-size={{ NODE_CIDR_LEN }} \

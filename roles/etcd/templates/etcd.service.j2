@@ -16,6 +16,7 @@ ExecStart={{ bin_dir }}/etcd \
   --peer-key-file={{ ca_dir }}/etcd-key.pem \
   --trusted-ca-file={{ ca_dir }}/ca.pem \
   --peer-trusted-ca-file={{ ca_dir }}/ca.pem \
+  --cipher-suites=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA \
   --initial-advertise-peer-urls=https://{{ inventory_hostname }}:2380 \
   --listen-peer-urls=https://{{ inventory_hostname }}:2380 \
   --listen-client-urls=https://{{ inventory_hostname }}:2379,http://127.0.0.1:2379 \
