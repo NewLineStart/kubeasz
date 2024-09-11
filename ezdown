@@ -148,8 +148,8 @@ EOF
   "bip": "5.5.5.1/24",
   "exec-opts": ["native.cgroupdriver=$CGROUP_DRIVER"],
   "registry-mirrors": [
-    "https://docker.mirrors.ustc.edu.cn",
-    "http://hub-mirror.c.163.com"
+    "https://dockerpull.com",
+    "https://docker.anyhub.us.kg"
   ],
   "max-concurrent-downloads": 10,
   "log-driver": "json-file",
