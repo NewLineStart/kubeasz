@@ -5,7 +5,7 @@
 # 2. to run kubeasz in a container (optional)
 # @author:   gjmzj
 # @usage:    ./ezdown
-# @repo:     https://github.com/harbor.nisco.cn/easzlab/kubeasz
+# @repo:     https://github.com/harbor.citicsteel.com/easzlab/kubeasz
 # @ref:      https://github.com/kubeasz/dockerfiles
 #--------------------------------------------------
 set -o nounset
@@ -198,7 +198,7 @@ function get_kubeasz() {
 
   logger info "downloading kubeasz: $KUBEASZ_VER"
   logger debug " run a temporary container"
-  docker run -d --name temp_easz harbor.nisco.cn/easzlab/kubeasz:${KUBEASZ_VER} || { logger error "download failed."; exit 1; }
+  docker run -d --name temp_easz harbor.citicsteel.com/easzlab/kubeasz:${KUBEASZ_VER} || { logger error "download failed."; exit 1; }
 
   [[ -f "$BASE/down/docker-${DOCKER_VER}.tgz" ]] && /bin/mv -f "$BASE/down/docker-${DOCKER_VER}.tgz" /tmp
   [[ -d "$BASE/bin" ]] && /bin/mv -f "$BASE/bin" /tmp
@@ -219,9 +219,9 @@ function get_k8s_bin() {
   [[ -f "$BASE/bin/kubelet" ]] && { logger warn "kubernetes binaries existed"; return 0; }
   
   logger info "downloading kubernetes: $K8S_BIN_VER binaries"
-  docker pull harbor.nisco.cn/easzlab/kubeasz-k8s-bin:"$K8S_BIN_VER" && \
+  docker pull harbor.citicsteel.com/easzlab/kubeasz-k8s-bin:"$K8S_BIN_VER" && \
   logger debug "run a temporary container" && \
-  docker run -d --name temp_k8s_bin harbor.nisco.cn/easzlab/kubeasz-k8s-bin:${K8S_BIN_VER} && \
+  docker run -d --name temp_k8s_bin harbor.citicsteel.com/easzlab/kubeasz-k8s-bin:${K8S_BIN_VER} && \
   logger debug "cp k8s binaries" && \
   docker cp temp_k8s_bin:/k8s "$BASE/k8s_bin_tmp" && \
   /bin/mv -f "$BASE"/k8s_bin_tmp/* "$BASE/bin" && \
@@ -234,9 +234,9 @@ function get_ext_bin() {
   [[ -f "$BASE/bin/etcdctl" ]] && { logger warn "extra binaries existed"; return 0; }
 
   logger info "downloading extral binaries kubeasz-ext-bin:$EXT_BIN_VER"
-  docker pull "harbor.nisco.cn/easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
+  docker pull "harbor.citicsteel.com/easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
   logger debug "run a temporary container" && \
-  docker run -d --name temp_ext_bin "harbor.nisco.cn/easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
+  docker run -d --name temp_ext_bin "harbor.citicsteel.com/easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
   logger debug "cp extral binaries" && \
   docker cp temp_ext_bin:/extra "$BASE/extra_bin_tmp" && \
   /bin/mv -f "$BASE"/extra_bin_tmp/* "$BASE/bin" && \
@@ -249,9 +249,9 @@ function get_sys_pkg() {
   [[ -f "$BASE/down/packages/chrony_xenial.tar.gz" ]] && { logger warn "system packages existed"; return 0; }
 
   logger info "downloading system packages kubeasz-sys-pkg:$SYS_PKG_VER"
-  docker pull "harbor.nisco.cn/easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
+  docker pull "harbor.citicsteel.com/easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
   logger debug "run a temporary container" && \
-  docker run -d --name temp_sys_pkg "harbor.nisco.cn/easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
+  docker run -d --name temp_sys_pkg "harbor.citicsteel.com/easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
   logger debug "cp system packages" && \
   docker cp temp_sys_pkg:/packages "$BASE/down" && \
   logger debug "stop&remove temporary container" && \
@@ -262,9 +262,9 @@ function get_harbor_offline_pkg() {
   [[ -f "$BASE/down/harbor-offline-installer-$HARBOR_VER.tgz" ]] && { logger warn "harbor-offline existed"; return 0; }
 
   logger info "downloading harbor-offline:$HARBOR_VER"
-  docker pull "harbor.nisco.cn/easzlab/harbor-offline:$HARBOR_VER" && \
+  docker pull "harbor.citicsteel.com/easzlab/harbor-offline:$HARBOR_VER" && \
   logger debug "run a temporary container" && \
-  docker run -d --name temp_harbor "harbor.nisco.cn/easzlab/harbor-offline:$HARBOR_VER" && \
+  docker run -d --name temp_harbor "harbor.citicsteel.com/easzlab/harbor-offline:$HARBOR_VER" && \
   logger debug "cp harbor-offline installer package" && \
   docker cp "temp_harbor:/harbor-offline-installer-$HARBOR_VER.tgz" "$BASE/down" && \
   logger debug "stop&remove temporary container" && \
@@ -276,48 +276,48 @@ function get_offline_image() {
   logger info "downloading offline images"
 
   if [[ ! -f "$imageDir/calico_$calicoVer.tar" ]];then
-    docker pull "harbor.nisco.cn/calico/cni:$calicoVer" && \
-    docker pull "harbor.nisco.cn/calico/pod2daemon-flexvol:$calicoVer" && \
-    docker pull "harbor.nisco.cn/calico/kube-controllers:$calicoVer" && \
-    docker pull "harbor.nisco.cn/calico/node:$calicoVer" && \
-    docker save -o "$imageDir/calico_$calicoVer.tar" "harbor.nisco.cn/calico/cni:$calicoVer" "harbor.nisco.cn/calico/kube-controllers:$calicoVer" "harbor.nisco.cn/calico/node:$calicoVer" "harbor.nisco.cn/calico/pod2daemon-flexvol:$calicoVer"
+    docker pull "harbor.citicsteel.com/calico/cni:$calicoVer" && \
+    docker pull "harbor.citicsteel.com/calico/pod2daemon-flexvol:$calicoVer" && \
+    docker pull "harbor.citicsteel.com/calico/kube-controllers:$calicoVer" && \
+    docker pull "harbor.citicsteel.com/calico/node:$calicoVer" && \
+    docker save -o "$imageDir/calico_$calicoVer.tar" "harbor.citicsteel.com/calico/cni:$calicoVer" "harbor.citicsteel.com/calico/kube-controllers:$calicoVer" "harbor.citicsteel.com/calico/node:$calicoVer" "harbor.citicsteel.com/calico/pod2daemon-flexvol:$calicoVer"
   fi
   if [[ ! -f "$imageDir/coredns_$corednsVer.tar" ]];then
-    docker pull "harbor.nisco.cn/coredns/coredns:$corednsVer" && \
-    docker save -o "$imageDir/coredns_$corednsVer.tar" "harbor.nisco.cn/coredns/coredns:$corednsVer"
+    docker pull "harbor.citicsteel.com/coredns/coredns:$corednsVer" && \
+    docker save -o "$imageDir/coredns_$corednsVer.tar" "harbor.citicsteel.com/coredns/coredns:$corednsVer"
   fi
   #if [[ ! -f "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" ]];then
-  #  docker pull "harbor.nisco.cn/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" && \
-  #  docker save -o "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" "harbor.nisco.cn/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" 
+  #  docker pull "harbor.citicsteel.com/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" && \
+  #  docker save -o "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" "harbor.citicsteel.com/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" 
   #fi
   #if [[ ! -f "$imageDir/dashboard_$dashboardVer.tar" ]];then
   #  docker pull "kubernetesui/dashboard:$dashboardVer" && \
   #  docker save -o "$imageDir/dashboard_$dashboardVer.tar" "kubernetesui/dashboard:$dashboardVer"
   #fi
   #if [[ ! -f "$imageDir/flannel_$flannelVer.tar" ]];then
-  #  docker pull "harbor.nisco.cn/easzlab/flannel:$flannelVer" && \
-  #  docker save -o "$imageDir/flannel_$flannelVer.tar" "harbor.nisco.cn/easzlab/flannel:$flannelVer"
+  #  docker pull "harbor.citicsteel.com/easzlab/flannel:$flannelVer" && \
+  #  docker save -o "$imageDir/flannel_$flannelVer.tar" "harbor.citicsteel.com/easzlab/flannel:$flannelVer"
   #fi
   #if [[ ! -f "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" ]];then
   #  docker pull "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer" && \
   #  docker save -o "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
   #fi
   if [[ ! -f "$imageDir/metrics-server_$metricsVer.tar" ]];then
-    docker pull "harbor.nisco.cn/easzlab/metrics-server-amd64:$metricsVer" && \
-    docker save -o "$imageDir/metrics-server_$metricsVer.tar" "harbor.nisco.cn/easzlab/metrics-server-amd64:$metricsVer"
+    docker pull "harbor.citicsteel.com/easzlab/metrics-server-amd64:$metricsVer" && \
+    docker save -o "$imageDir/metrics-server_$metricsVer.tar" "harbor.citicsteel.com/easzlab/metrics-server-amd64:$metricsVer"
   fi
   if [[ ! -f "$imageDir/pause_$pauseVer.tar" ]];then
-    docker pull "harbor.nisco.cn/easzlab/pause-amd64:$pauseVer" && \
-    docker save -o "$imageDir/pause_$pauseVer.tar" "harbor.nisco.cn/easzlab/pause-amd64:$pauseVer"
+    docker pull "harbor.citicsteel.com/easzlab/pause-amd64:$pauseVer" && \
+    docker save -o "$imageDir/pause_$pauseVer.tar" "harbor.citicsteel.com/easzlab/pause-amd64:$pauseVer"
     /bin/cp -u "$imageDir/pause_$pauseVer.tar" "$imageDir/pause.tar"
   fi
   if [[ ! -f "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" ]];then
-    docker pull "harbor.nisco.cn/kubernetes/nfs-subdir-external-provisioner:$nfsProvisionerVer" && \
-    docker save -o "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" "harbor.nisco.cn/kubernetes/nfs-subdir-external-provisioner:$nfsProvisionerVer"
+    docker pull "harbor.citicsteel.com/kubernetes/nfs-subdir-external-provisioner:$nfsProvisionerVer" && \
+    docker save -o "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" "harbor.citicsteel.com/kubernetes/nfs-subdir-external-provisioner:$nfsProvisionerVer"
   fi
   if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
-    docker pull "harbor.nisco.cn/easzlab/kubeasz:$KUBEASZ_VER" && \
-    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "harbor.nisco.cn/easzlab/kubeasz:$KUBEASZ_VER"
+    docker pull "harbor.citicsteel.com/easzlab/kubeasz:$KUBEASZ_VER" && \
+    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "harbor.citicsteel.com/easzlab/kubeasz:$KUBEASZ_VER"
   fi
 }
 
@@ -366,7 +366,7 @@ function start_kubeasz_docker() {
       --volume "$BASE":"$BASE" \
       --volume /root/.kube:/root/.kube \
       --volume /root/.ssh:/root/.ssh \
-      harbor.nisco.cn/easzlab/kubeasz:${KUBEASZ_VER} sleep 36000
+      harbor.citicsteel.com/easzlab/kubeasz:${KUBEASZ_VER} sleep 36000
 }
 
 function clean_container() {

@@ -47,7 +47,7 @@ ETCD_WAL_DIR: ""
 ENABLE_MIRROR_REGISTRY: true
 
 # [containerd]基础容器镜像
-SANDBOX_IMAGE: "harbor.nisco.cn/kubernetes/pause-amd64:3.4.1"
+SANDBOX_IMAGE: "harbor.citicsteel.com/kubernetes/pause-amd64:3.4.1"
 
 # [containerd]容器持久化存储目录
 CONTAINERD_STORAGE_DIR: "/var/lib/containerd"
@@ -60,7 +60,7 @@ DOCKER_STORAGE_DIR: "/opt/docker"
 ENABLE_REMOTE_API: false
 
 # [docker]信任的HTTP仓库
-INSECURE_REG: '["harbor.nisco.cn"]'
+INSECURE_REG: '["harbor.citicsteel.com"]'
 
 
 ############################

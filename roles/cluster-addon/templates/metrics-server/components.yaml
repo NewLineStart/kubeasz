@@ -84,7 +84,7 @@ spec:
       containers:
       - name: metrics-server
         #image: k8s.gcr.io/metrics-server-amd64:v0.3.6
-        image: harbor.nisco.cn/easzlab/metrics-server-amd64:v0.3.6
+        image: harbor.citicsteel.com/easzlab/metrics-server-amd64:v0.3.6
         imagePullPolicy: IfNotPresent
         args:
           - --cert-dir=/tmp
