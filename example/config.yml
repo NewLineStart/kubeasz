@@ -14,8 +14,8 @@ OS_HARDEN: false
 ############################
 # default: ca will expire in 100 years
 # default: certs issued by the ca will expire in 50 years
-CA_EXPIRY: "876000h"
-CERT_EXPIRY: "438000h"
+CA_EXPIRY: "999999h"
+CERT_EXPIRY: "999999h"
 
 # force to recreate CA and other certs, not suggested to set 'true'
 CHANGE_CA: false
@@ -45,7 +45,7 @@ ENABLE_SETTING_HOSTNAME: true
 # role:etcd
 ############################
 # 设置不同的wal目录，可以避免磁盘io竞争，提高性能
-ETCD_DATA_DIR: "/var/lib/etcd"
+ETCD_DATA_DIR: "/opt/kube/etcd"
 ETCD_WAL_DIR: ""
 
 
@@ -68,7 +68,7 @@ SANDBOX_IMAGE: "easzlab.io.local:5000/easzlab/pause:__pause__"
 CONTAINERD_STORAGE_DIR: "/var/lib/containerd"
 
 # [docker]容器存储目录
-DOCKER_STORAGE_DIR: "/var/lib/docker"
+DOCKER_STORAGE_DIR: "/opt/docker"
 
 # [docker]开启Restful API
 DOCKER_ENABLE_REMOTE_API: false
@@ -93,14 +93,14 @@ NODE_CIDR_LEN: 24
 # role:kube-node
 ############################
 # Kubelet 根目录
-KUBELET_ROOT_DIR: "/var/lib/kubelet"
+KUBELET_ROOT_DIR: "/opt/kube/kubelet"
 
 # node节点最大pod 数
 MAX_PODS: 110
 
 # 配置为kube组件（kubelet,kube-proxy,dockerd等）预留的资源量
 # 数值设置详见templates/kubelet-config.yaml.j2
-KUBE_RESERVED_ENABLED: "no"
+KUBE_RESERVED_ENABLED: "yes"
 
 # k8s 官方不建议草率开启 system-reserved, 除非你基于长期监控，了解系统的资源占用状况；
 # 并且随着系统运行时间，需要适当增加资源预留，数值设置详见templates/kubelet-config.yaml.j2
@@ -183,7 +183,7 @@ metricsserver_install: "yes"
 metricsVer: "__metrics__"
 
 # dashboard 自动安装
-dashboard_install: "yes"
+dashboard_install: "no"
 dashboardVer: "__dashboard__"
 dashboardMetricsScraperVer: "__dash_metrics__"
 

@@ -198,10 +198,12 @@ EOF
     logger debug "prepare register mirror for $REGISTRY_MIRROR"
     cat > /etc/docker/daemon.json << EOF
 {
+  "bip": "5.5.5.1/24",
   "exec-opts": ["native.cgroupdriver=$CGROUP_DRIVER"],
   "registry-mirrors": [
     "https://docker.nju.edu.cn/",
-    "https://kuamavit.mirror.aliyuncs.com"
+    "https://kuamavit.mirror.aliyuncs.com",
+    "https://hub.geekery.cn"
   ],
   "insecure-registries": ["http://easzlab.io.local:5000"],
   "max-concurrent-downloads": 10,
@@ -211,13 +213,15 @@ EOF
     "max-size": "10m",
     "max-file": "3"
     },
-  "data-root": "/var/lib/docker"
+  "data-root": "/opt/docker",
+  "live-restore": true
 }
 EOF
   else
     logger debug "standard config without registry mirrors"
     cat > /etc/docker/daemon.json << EOF
 {
+  "bip": "5.5.5.1/24",
   "exec-opts": ["native.cgroupdriver=$CGROUP_DRIVER"],
   "insecure-registries": ["http://easzlab.io.local:5000"],
   "max-concurrent-downloads": 10,
@@ -227,7 +231,8 @@ EOF
     "max-size": "10m",
     "max-file": "3"
     },
-  "data-root": "/var/lib/docker"
+  "data-root": "/opt/docker",
+  "live-restore": true
 }
 EOF
   fi
