@@ -207,7 +207,13 @@ EOF
     "https://docker.1panel.live",
     "https://proxy.1panel.live",
     "https://hub.rat.dev",
-    "https://docker.amingg.com"
+    "https://docker.amingg.com",
+	"https://hub.firefly.store",
+	"https://registry.dockermirror.com",
+	"https://hub.rat.dev",
+	"https://docker.kejilion.pro",
+	"https://dhub.kubesre.xyz",
+	"https://docker.imgdb.de"
   ],
   "insecure-registries": ["http://easzlab.io.local:5000"],
   "max-concurrent-downloads": 10,

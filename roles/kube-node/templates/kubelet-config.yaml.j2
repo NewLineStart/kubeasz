@@ -37,9 +37,9 @@ enforceNodeAllocatable:
 eventBurst: 10
 eventRecordQPS: 5
 evictionHard:
-  imagefs.available: 15%
-  memory.available: 300Mi
-  nodefs.available: 10%
+  imagefs.available: 5%
+  memory.available: 2Gi
+  nodefs.available: 5%
   nodefs.inodesFree: 5%
 evictionPressureTransitionPeriod: 5m0s
 failSwapOn: true
@@ -54,8 +54,8 @@ imageMinimumGCAge: 2m0s
 {% if KUBE_RESERVED_ENABLED == "yes" %}
 kubeReservedCgroup: /podruntime.slice
 kubeReserved:
-  cpu: 500m
-  memory: 1000Mi
+  cpu: 1
+  memory: 2Gi
   pid: "1000"
 {% endif %}
 kubeAPIBurst: 100
@@ -80,8 +80,8 @@ syncFrequency: 1m0s
 {% if SYS_RESERVED_ENABLED == "yes" %}
 systemReservedCgroup: /system.slice
 systemReserved:
-  cpu: 500m
-  memory: 1000Mi
+  cpu: 1
+  memory: 2Gi
   pid: "5000"
 {% endif %}
 tlsCertFile: {{ ca_dir }}/kubelet.pem
