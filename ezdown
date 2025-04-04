@@ -23,6 +23,7 @@ EXT_BIN_VER=1.12.1
 SYS_PKG_VER=1.0.2
 HARBOR_VER=v2.12.2
 REGISTRY_MIRROR=CN
+# 公司内网存在minio进行下载docker压缩包
 NETWORK_TYPE=IN
 
 # images downloaded by default(with 'ezdown -D')
@@ -142,7 +143,11 @@ function logger() {
 
 function download_docker() {
   if [[ "$REGISTRY_MIRROR" == CN ]];then
-    DOCKER_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
+    if [[ "$NETWORK_TYPE" == IN ]];then
+	  DOCKER_URL="http://172.29.248.18:9000/install-package/docker/${ARCH}/docker-${DOCKER_VER}.tgz"
+    else
+          DOCKER_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
+    fi
   else
     DOCKER_URL="https://download.docker.com/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
   fi
@@ -297,9 +302,9 @@ function get_k8s_bin() {
   logger info "downloading kubernetes: $K8S_BIN_VER binaries"
   rm -rf "$BASE/k8s_bin_tmp"
   docker ps -a |grep -q temp_k8s_bin && { logger debug "remove existing container"; docker rm -f temp_k8s_bin; }
-  docker pull easzlab/kubeasz-k8s-bin:"$K8S_BIN_VER" && \
+  docker pull harbor.nisco.cn/easzlab/kubeasz-k8s-bin:"$K8S_BIN_VER" && \
   logger debug "run a temporary container" && \
-  docker run -d --name temp_k8s_bin easzlab/kubeasz-k8s-bin:${K8S_BIN_VER} && \
+  docker run -d --name temp_k8s_bin harbor.nisco.cn/easzlab/kubeasz-k8s-bin:${K8S_BIN_VER} && \
   logger debug "cp k8s binaries" && \
   docker cp temp_k8s_bin:/k8s "$BASE/k8s_bin_tmp" && \
   /bin/mv -f "$BASE"/k8s_bin_tmp/* "$BASE/bin" && \
@@ -314,9 +319,9 @@ function get_ext_bin() {
   logger info "downloading extral binaries kubeasz-ext-bin:$EXT_BIN_VER"
   rm -rf "$BASE/extra_bin_tmp"
   docker ps -a |grep -q temp_ext_bin && { logger debug "remove existing container"; docker rm -f temp_ext_bin; }
-  docker pull "easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
+  docker pull "harbor.nisco.cn/easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
   logger debug "run a temporary container" && \
-  docker run -d --name temp_ext_bin "easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
+  docker run -d --name temp_ext_bin "harbor.nisco.cn/easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
   logger debug "cp extral binaries" && \
   docker cp temp_ext_bin:/extra "$BASE/extra_bin_tmp" && \
   /bin/mv -f "$BASE"/extra_bin_tmp/* "$BASE/bin" && \
@@ -330,9 +335,9 @@ function get_sys_pkg() {
 
   docker ps -a |grep -q temp_sys_pkg && { logger debug "remove existing container"; docker rm -f temp_sys_pkg; }
   logger info "downloading system packages kubeasz-sys-pkg:$SYS_PKG_VER"
-  docker pull "easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
+  docker pull "harbor.nisco.cn/easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
   logger debug "run a temporary container" && \
-  docker run -d --name temp_sys_pkg "easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
+  docker run -d --name temp_sys_pkg "harbor.nisco.cn/easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
   logger debug "cp system packages" && \
   docker cp temp_sys_pkg:/packages "$BASE/down" && \
   logger debug "stop&remove temporary container" && \
@@ -344,9 +349,9 @@ function get_harbor_offline_pkg() {
 
   docker ps -a |grep -q temp_harbor && { logger debug "remove existing container"; docker rm -f temp_harbor; }
   logger info "downloading harbor-offline:$HARBOR_VER"
-  docker pull "easzlab/harbor-offline:$HARBOR_VER" && \
+  docker pull "harbor.nisco.cn/easzlab/harbor-offline:$HARBOR_VER" && \
   logger debug "run a temporary container" && \
-  docker run -d --name temp_harbor "easzlab/harbor-offline:$HARBOR_VER" && \
+  docker run -d --name temp_harbor "harbor.nisco.cn/easzlab/harbor-offline:$HARBOR_VER" && \
   logger debug "cp harbor-offline installer package" && \
   docker cp "temp_harbor:/harbor-offline-installer-$HARBOR_VER.tgz" "$BASE/down" && \
   logger debug "stop&remove temporary container" && \
@@ -358,33 +363,33 @@ function get_default_images() {
 
   # calico
   if [[ ! -f "$imageDir/calico_$calicoVer.tar" ]];then
-    docker pull "calico/cni:$calicoVer" && \
-    docker pull "calico/kube-controllers:$calicoVer" && \
-    docker pull "calico/node:$calicoVer" && \
+    docker pull "harbor.nisco.cn/calico/cni:$calicoVer" && \
+    docker pull "harbor.nisco.cn/calico/kube-controllers:$calicoVer" && \
+    docker pull "harbor.nisco.cn/calico/node:$calicoVer" && \
     docker save -o "$imageDir/calico_$calicoVer.tar" "calico/cni:$calicoVer" "calico/kube-controllers:$calicoVer" "calico/node:$calicoVer"
   else
     docker load -i "$imageDir/calico_$calicoVer.tar"
   fi
-  docker tag "calico/cni:$calicoVer" "easzlab.io.local:5000/calico/cni:$calicoVer"
+  docker tag "harbor.nisco.cn/calico/cni:$calicoVer" "easzlab.io.local:5000/calico/cni:$calicoVer"
   docker push "easzlab.io.local:5000/calico/cni:$calicoVer"
-  docker tag "calico/kube-controllers:$calicoVer" "easzlab.io.local:5000/calico/kube-controllers:$calicoVer"
+  docker tag "harbor.nisco.cn/calico/kube-controllers:$calicoVer" "easzlab.io.local:5000/calico/kube-controllers:$calicoVer"
   docker push "easzlab.io.local:5000/calico/kube-controllers:$calicoVer"
-  docker tag "calico/node:$calicoVer" "easzlab.io.local:5000/calico/node:$calicoVer"
+  docker tag "harbor.nisco.cn/calico/node:$calicoVer" "easzlab.io.local:5000/calico/node:$calicoVer"
   docker push "easzlab.io.local:5000/calico/node:$calicoVer"
 
   # coredns
   if [[ ! -f "$imageDir/coredns_$corednsVer.tar" ]];then
-    docker pull "coredns/coredns:$corednsVer" && \
-    docker save -o "$imageDir/coredns_$corednsVer.tar" "coredns/coredns:$corednsVer"
+    docker pull "harbor.nisco.cn/coredns/coredns:$corednsVer" && \
+    docker save -o "$imageDir/coredns_$corednsVer.tar" "harbor.nisco.cn/coredns/coredns:$corednsVer"
   else
     docker load -i "$imageDir/coredns_$corednsVer.tar"
   fi
-  docker tag "coredns/coredns:$corednsVer" "easzlab.io.local:5000/coredns/coredns:$corednsVer"
+  docker tag "harbor.nisco.cn/coredns/coredns:$corednsVer" "easzlab.io.local:5000/coredns/coredns:$corednsVer"
   docker push "easzlab.io.local:5000/coredns/coredns:$corednsVer"
 
   # dns-node-cache
   if [[ ! -f "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" ]];then
-    docker pull "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" && \
+    docker pull "harbor.nisco.cn/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" && \
     docker save -o "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer"
   else
     docker load -i "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar"
@@ -392,34 +397,34 @@ function get_default_images() {
   docker tag "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" "easzlab.io.local:5000/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer"
   docker push "easzlab.io.local:5000/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer"
 
-  # dashboard
-  if [[ ! -f "$imageDir/dashboard_$dashboardVer.tar" ]];then
-    docker pull "kubernetesui/dashboard:$dashboardVer" && \
-    docker save -o "$imageDir/dashboard_$dashboardVer.tar" "kubernetesui/dashboard:$dashboardVer"
-  else
-    docker load -i "$imageDir/dashboard_$dashboardVer.tar"
-  fi
-  docker tag "kubernetesui/dashboard:$dashboardVer" "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
-  docker push "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
-
-  # dashboard-metrics-scraper
-  if [[ ! -f "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" ]];then
-    docker pull "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer" && \
-    docker save -o "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
-  else
-    docker load -i "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar"
-  fi
-  docker tag "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer" "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
-  docker push "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
-
+### dashboard
+##if [[ ! -f "$imageDir/dashboard_$dashboardVer.tar" ]];then
+##  docker pull "kubernetesui/dashboard:$dashboardVer" && \
+##  docker save -o "$imageDir/dashboard_$dashboardVer.tar" "kubernetesui/dashboard:$dashboardVer"
+##else
+##  docker load -i "$imageDir/dashboard_$dashboardVer.tar"
+##fi
+##docker tag "kubernetesui/dashboard:$dashboardVer" "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
+##docker push "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
+##
+### dashboard-metrics-scraper
+##if [[ ! -f "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" ]];then
+##  docker pull "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer" && \
+##  docker save -o "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
+##else
+##  docker load -i "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar"
+##fi
+##docker tag "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer" "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
+##docker push "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
+##
   # metrics-server
   if [[ ! -f "$imageDir/metrics-server_$metricsVer.tar" ]];then
-    docker pull "easzlab/metrics-server:$metricsVer" && \
-    docker save -o "$imageDir/metrics-server_$metricsVer.tar" "easzlab/metrics-server:$metricsVer"
+    docker pull "harbor.nisco.cn/easzlab/metrics-server:$metricsVer" && \
+    docker save -o "$imageDir/metrics-server_$metricsVer.tar" "harbor.nisco.cn/easzlab/metrics-server:$metricsVer"
   else
     docker load -i "$imageDir/metrics-server_$metricsVer.tar"
   fi
-  docker tag "easzlab/metrics-server:$metricsVer" "easzlab.io.local:5000/easzlab/metrics-server:$metricsVer"
+  docker tag "harbor.nisco.cn/easzlab/metrics-server:$metricsVer" "easzlab.io.local:5000/easzlab/metrics-server:$metricsVer"
   docker push "easzlab.io.local:5000/easzlab/metrics-server:$metricsVer"
 
   # pause
@@ -440,43 +445,43 @@ function get_extra_images() {
     # cilium images
     cilium)
       if [[ ! -f "$imageDir/cilium_$ciliumVer.tar" ]];then
-        docker pull "cilium/cilium:v$ciliumVer" && \
-        docker pull "cilium/operator-generic:v$ciliumVer" && \
-        docker pull "cilium/hubble-relay:v$ciliumVer" && \
-        docker pull cilium/hubble-ui-backend:v0.13.1 && \
-        docker pull cilium/hubble-ui:v0.13.1 && \
-        docker save -o "$imageDir/cilium_$ciliumVer.tar" "cilium/cilium:v$ciliumVer" \
-            "cilium/operator-generic:v$ciliumVer" \
-            "cilium/hubble-relay:v$ciliumVer" \
-            "cilium/hubble-ui-backend:v0.13.1" \
-            "cilium/hubble-ui:v0.13.1"
+        docker pull "harbor.nisco.cn/cilium/cilium:v$ciliumVer" && \
+        docker pull "harbor.nisco.cn/cilium/operator-generic:v$ciliumVer" && \
+        docker pull "harbor.nisco.cn/cilium/hubble-relay:v$ciliumVer" && \
+        docker pull harbor.nisco.cn/cilium/hubble-ui-backend:v0.13.1 && \
+        docker pull harbor.nisco.cn/cilium/hubble-ui:v0.13.1 && \
+        docker save -o "$imageDir/cilium_$ciliumVer.tar" "harbor.nisco.cn/cilium/cilium:v$ciliumVer" \
+            "harbor.nisco.cn/cilium/operator-generic:v$ciliumVer" \
+            "harbor.nisco.cn/cilium/hubble-relay:v$ciliumVer" \
+            "harbor.nisco.cn/cilium/hubble-ui-backend:v0.13.1" \
+            "harbor.nisco.cn/cilium/hubble-ui:v0.13.1"
       else
         docker load -i "$imageDir/cilium_$ciliumVer.tar"
       fi
-      docker tag "cilium/cilium:v$ciliumVer" "easzlab.io.local:5000/cilium/cilium:v$ciliumVer"
+      docker tag "harbor.nisco.cn/cilium/cilium:v$ciliumVer" "easzlab.io.local:5000/cilium/cilium:v$ciliumVer"
       docker push "easzlab.io.local:5000/cilium/cilium:v$ciliumVer"
-      docker tag "cilium/operator-generic:v$ciliumVer" "easzlab.io.local:5000/cilium/operator-generic:v$ciliumVer"
+      docker tag "harbor.nisco.cn/cilium/operator-generic:v$ciliumVer" "easzlab.io.local:5000/cilium/operator-generic:v$ciliumVer"
       docker push "easzlab.io.local:5000/cilium/operator-generic:v$ciliumVer"
-      docker tag "cilium/hubble-relay:v$ciliumVer" "easzlab.io.local:5000/cilium/hubble-relay:v$ciliumVer"
+      docker tag "harbor.nisco.cn/cilium/hubble-relay:v$ciliumVer" "easzlab.io.local:5000/cilium/hubble-relay:v$ciliumVer"
       docker push "easzlab.io.local:5000/cilium/hubble-relay:v$ciliumVer"
-      docker tag cilium/hubble-ui-backend:v0.13.1 easzlab.io.local:5000/cilium/hubble-ui-backend:v0.13.1
+      docker tag harbor.nisco.cn/cilium/hubble-ui-backend:v0.13.1 easzlab.io.local:5000/cilium/hubble-ui-backend:v0.13.1
       docker push easzlab.io.local:5000/cilium/hubble-ui-backend:v0.13.1
-      docker tag cilium/hubble-ui:v0.13.1 easzlab.io.local:5000/cilium/hubble-ui:v0.13.1
+      docker tag harbor.nisco.cn/cilium/hubble-ui:v0.13.1 easzlab.io.local:5000/cilium/hubble-ui:v0.13.1
       docker push easzlab.io.local:5000/cilium/hubble-ui:v0.13.1
       ;;
 
     # flannel image
     flannel)
       if [[ ! -f "$imageDir/flannel_$flannelVer.tar" ]];then
-        docker pull "flannel/flannel:$flannelVer" && \
-        docker pull "flannel/flannel-cni-plugin:v1.5.1-flannel2" && \
+        docker pull "harbor.nisco.cn/flannel/flannel:$flannelVer" && \
+        docker pull "harbor.nisco.cn/flannel/flannel-cni-plugin:v1.5.1-flannel2" && \
         docker save -o "$imageDir/flannel_$flannelVer.tar" "flannel/flannel:$flannelVer" "flannel/flannel-cni-plugin:v1.5.1-flannel2"
       else
         docker load -i "$imageDir/flannel_$flannelVer.tar"
       fi
-      docker tag "flannel/flannel:$flannelVer" "easzlab.io.local:5000/flannel/flannel:$flannelVer"
+      docker tag "harbor.nisco.cn/flannel/flannel:$flannelVer" "easzlab.io.local:5000/flannel/flannel:$flannelVer"
       docker push "easzlab.io.local:5000/flannel/flannel:$flannelVer"
-      docker tag "flannel/flannel-cni-plugin:v1.5.1-flannel2" "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.5.1-flannel2"
+      docker tag "harbor.nisco.cn/flannel/flannel-cni-plugin:v1.5.1-flannel2" "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.5.1-flannel2"
       docker push "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.5.1-flannel2"
       ;;
 
@@ -552,35 +557,35 @@ function get_extra_images() {
     # network-check images
     network-check)
       if [[ ! -f "$imageDir/network-check.tar" ]];then
-        docker pull easzlab/json-mock:v1.3.0 && \
-        docker pull easzlab/alpine-curl:v7.85.0 && \
+        docker pull harbor.nisco.cn/easzlab/json-mock:v1.3.0 && \
+        docker pull harbor.nisco.cn/easzlab/alpine-curl:v7.85.0 && \
         docker save -o "$imageDir/network-check.tar" easzlab/json-mock:v1.3.0 easzlab/alpine-curl:v7.85.0
       else
         docker load -i "$imageDir/network-check.tar"
       fi
-      docker tag easzlab/json-mock:v1.3.0 easzlab.io.local:5000/cilium/json-mock:v1.3.0
+      docker tag harbor.nisco.cn/easzlab/json-mock:v1.3.0 easzlab.io.local:5000/cilium/json-mock:v1.3.0
       docker push easzlab.io.local:5000/cilium/json-mock:v1.3.0
-      docker tag easzlab/alpine-curl:v7.85.0 easzlab.io.local:5000/easzlab/alpine-curl:v7.85.0
+      docker tag harbor.nisco.cn/easzlab/alpine-curl:v7.85.0 easzlab.io.local:5000/easzlab/alpine-curl:v7.85.0
       docker push easzlab.io.local:5000/easzlab/alpine-curl:v7.85.0
       ;;
 
     # nfs-provisioner image
     nfs-provisioner)
       if [[ ! -f "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" ]];then
-        docker pull "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" && \
-        docker save -o "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
+        docker pull "harbor.nisco.cn/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" && \
+        docker save -o "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" "harbor.nisco.cn/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
       else
         docker load -i "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar"
       fi
-      docker tag "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" "easzlab.io.local:5000/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
+      docker tag "harbor.nisco.cn/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" "easzlab.io.local:5000/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
       docker push "easzlab.io.local:5000/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
       ;;
 
     # prometheus chart images
     prometheus)
       if [[ ! -f "$imageDir/prometheus-chart_$promChartVer.tar" ]];then
-        docker pull easzlab/kube-state-metrics:v2.8.2 && \
-        docker pull easzlab/kube-webhook-certgen:v1.5.1 && \
+        docker pull harbor.nisco.cn/easzlab/kube-state-metrics:v2.8.2 && \
+        docker pull harbor.nisco.cn/easzlab/kube-webhook-certgen:v1.5.1 && \
         docker pull grafana/grafana:9.4.7 && \
         docker pull quay.io/kiwigrid/k8s-sidecar:1.22.0 && \
         docker pull quay.io/prometheus-operator/prometheus-config-reloader:v0.63.0 && \
@@ -589,8 +594,8 @@ function get_extra_images() {
         docker pull quay.io/prometheus/node-exporter:v1.5.0 && \
         docker pull quay.io/prometheus/prometheus:v2.42.0 && \
         docker save -o "$imageDir/prometheus-chart_$promChartVer.tar" \
-            easzlab/kube-state-metrics:v2.8.2 \
-            easzlab/kube-webhook-certgen:v1.5.1 \
+            harbor.nisco.cn/easzlab/kube-state-metrics:v2.8.2 \
+            harbor.nisco.cn/easzlab/kube-webhook-certgen:v1.5.1 \
             grafana/grafana:9.4.7 \
             quay.io/kiwigrid/k8s-sidecar:1.22.0 \
             quay.io/prometheus-operator/prometheus-config-reloader:v0.63.0 \
@@ -601,11 +606,11 @@ function get_extra_images() {
       else
         docker load -i "$imageDir/prometheus-chart_$promChartVer.tar"
       fi
-      docker tag easzlab/kube-state-metrics:v2.8.2 easzlab.io.local:5000/prometheus/kube-state-metrics:v2.8.2
+      docker tag harbor.nisco.cn/easzlab/kube-state-metrics:v2.8.2 easzlab.io.local:5000/prometheus/kube-state-metrics:v2.8.2
       docker push easzlab.io.local:5000/prometheus/kube-state-metrics:v2.8.2
-      docker tag easzlab/kube-webhook-certgen:v1.5.1 easzlab.io.local:5000/prometheus/kube-webhook-certgen:v1.5.1
+      docker tag harbor.nisco.cn/easzlab/kube-webhook-certgen:v1.5.1 easzlab.io.local:5000/prometheus/kube-webhook-certgen:v1.5.1
       docker push easzlab.io.local:5000/prometheus/kube-webhook-certgen:v1.5.1
-      docker tag grafana/grafana:9.4.7 easzlab.io.local:5000/prometheus/grafana:9.4.7
+      docker tag harbor.nisco.cn/grafana/grafana:9.4.7 easzlab.io.local:5000/prometheus/grafana:9.4.7
       docker push easzlab.io.local:5000/prometheus/grafana:9.4.7
       docker tag quay.io/kiwigrid/k8s-sidecar:1.22.0 easzlab.io.local:5000/prometheus/k8s-sidecar:1.22.0
       docker push easzlab.io.local:5000/prometheus/k8s-sidecar:1.22.0
@@ -675,8 +680,8 @@ function start_kubeasz_docker() {
 
   if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
     logger info "downloading kubeasz: $KUBEASZ_VER"
-    docker pull "easzlab/kubeasz:$KUBEASZ_VER" && \
-    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "easzlab/kubeasz:$KUBEASZ_VER"
+    docker pull "harbor.nisco.cn/easzlab/kubeasz:$KUBEASZ_VER" && \
+    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "harbor.nisco.cn/easzlab/kubeasz:$KUBEASZ_VER"
   else
     docker load -i "$imageDir/kubeasz_$KUBEASZ_VER.tar"
   fi
@@ -705,7 +710,7 @@ function start_kubeasz_docker() {
       --volume /root/.kube:/root/.kube \
       --volume /root/.ssh:/root/.ssh \
       --volume /etc/docker:/etc/docker \
-      easzlab/kubeasz:${KUBEASZ_VER}
+      harbor.nisco.cn/easzlab/kubeasz:${KUBEASZ_VER}
 }
 
 function clean_container() {
