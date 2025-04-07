@@ -397,26 +397,26 @@ function get_default_images() {
   docker tag "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" "easzlab.io.local:5000/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer"
   docker push "easzlab.io.local:5000/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer"
 
-### dashboard
-##if [[ ! -f "$imageDir/dashboard_$dashboardVer.tar" ]];then
-##  docker pull "kubernetesui/dashboard:$dashboardVer" && \
-##  docker save -o "$imageDir/dashboard_$dashboardVer.tar" "kubernetesui/dashboard:$dashboardVer"
-##else
-##  docker load -i "$imageDir/dashboard_$dashboardVer.tar"
-##fi
-##docker tag "kubernetesui/dashboard:$dashboardVer" "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
-##docker push "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
-##
-### dashboard-metrics-scraper
-##if [[ ! -f "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" ]];then
-##  docker pull "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer" && \
-##  docker save -o "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
-##else
-##  docker load -i "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar"
-##fi
-##docker tag "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer" "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
-##docker push "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
-##
+  # dashboard
+  if [[ ! -f "$imageDir/dashboard_$dashboardVer.tar" ]];then
+    docker pull "harbor.nisco.cn/easzlab/dashboard:$dashboardVer" && \
+    docker save -o "$imageDir/dashboard_$dashboardVer.tar" "harbor.nisco.cn/easzlab/dashboard:$dashboardVer"
+  else
+    docker load -i "$imageDir/dashboard_$dashboardVer.tar"
+  fi
+  docker tag "harbor.nisco.cn/easzlab/dashboard:$dashboardVer" "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
+  docker push "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
+  
+  # dashboard-metrics-scraper
+  if [[ ! -f "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" ]];then
+    docker pull "harbor.nisco.cn/easzlab/metrics-scraper:$dashboardMetricsScraperVer" && \
+    docker save -o "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" "harbor.nisco.cn/easzlab/metrics-scraper:$dashboardMetricsScraperVer"
+  else
+    docker load -i "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar"
+  fi
+  docker tag "harbor.nisco.cn/easzlab/metrics-scraper:$dashboardMetricsScraperVer" "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
+  docker push "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
+  
   # metrics-server
   if [[ ! -f "$imageDir/metrics-server_$metricsVer.tar" ]];then
     docker pull "harbor.nisco.cn/easzlab/metrics-server:$metricsVer" && \
@@ -429,12 +429,12 @@ function get_default_images() {
 
   # pause
   if [[ ! -f "$imageDir/pause_$pauseVer.tar" ]];then
-    docker pull "easzlab/pause:$pauseVer" && \
-    docker save -o "$imageDir/pause_$pauseVer.tar" "easzlab/pause:$pauseVer"
+    docker pull "harbor.nisco.cn/easzlab/pause:$pauseVer" && \
+    docker save -o "$imageDir/pause_$pauseVer.tar" "harbor.nisco.cn/easzlab/pause:$pauseVer"
   else
     docker load -i "$imageDir/pause_$pauseVer.tar"
   fi
-  docker tag "easzlab/pause:$pauseVer" "easzlab.io.local:5000/easzlab/pause:$pauseVer"
+  docker tag "harbor.nisco.cn/easzlab/pause:$pauseVer" "easzlab.io.local:5000/easzlab/pause:$pauseVer"
   docker push "easzlab.io.local:5000/easzlab/pause:$pauseVer"
 }
 
@@ -650,8 +650,8 @@ function start_local_registry() {
   { logger warn "local_registry is already running"; return 0; }
 
   if [[ ! -f "$imageDir/registry-2.tar" ]];then
-    docker pull "registry:2" && \
-    docker save -o "$imageDir/registry-2.tar" "registry:2"
+    docker pull "harbor.nisco.cn/easzlab/registry:2" && \
+    docker save -o "$imageDir/registry-2.tar" "harbor.nisco.cn/easzlab/registry:2"
   fi
 
   logger info "start local registry ..."
@@ -662,7 +662,7 @@ function start_local_registry() {
         --network host \
         --restart always \
         --volume /opt/kube/registry:/var/lib/registry \
-        registry:2
+        harbor.nisco.cn/easzlab/registry:2
 
   sed -i "/easzlab.io.local/d" /etc/hosts
   echo "127.0.0.1  easzlab.io.local" >> /etc/hosts
