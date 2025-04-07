@@ -173,7 +173,7 @@ kube_router_ver: "__kube_router__"
 # coredns 自动安装
 dns_install: "yes"
 corednsVer: "__coredns__"
-ENABLE_LOCAL_DNS_CACHE: true
+ENABLE_LOCAL_DNS_CACHE: false
 dnsNodeCacheVer: "__dns_node_cache__"
 # 设置 local dns cache 地址
 LOCAL_DNS_CACHE: "169.254.20.10"
