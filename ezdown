@@ -397,26 +397,26 @@ function get_default_images() {
   docker tag "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" "easzlab.io.local:5000/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer"
   docker push "easzlab.io.local:5000/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer"
 
-  # dashboard
-  if [[ ! -f "$imageDir/dashboard_$dashboardVer.tar" ]];then
-    docker pull "harbor.nisco.cn/easzlab/dashboard:$dashboardVer" && \
-    docker save -o "$imageDir/dashboard_$dashboardVer.tar" "harbor.nisco.cn/easzlab/dashboard:$dashboardVer"
-  else
-    docker load -i "$imageDir/dashboard_$dashboardVer.tar"
-  fi
-  docker tag "harbor.nisco.cn/easzlab/dashboard:$dashboardVer" "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
-  docker push "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
-  
-  # dashboard-metrics-scraper
-  if [[ ! -f "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" ]];then
-    docker pull "harbor.nisco.cn/easzlab/metrics-scraper:$dashboardMetricsScraperVer" && \
-    docker save -o "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" "harbor.nisco.cn/easzlab/metrics-scraper:$dashboardMetricsScraperVer"
-  else
-    docker load -i "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar"
-  fi
-  docker tag "harbor.nisco.cn/easzlab/metrics-scraper:$dashboardMetricsScraperVer" "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
-  docker push "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
-  
+### dashboard
+##if [[ ! -f "$imageDir/dashboard_$dashboardVer.tar" ]];then
+##  docker pull "harbor.nisco.cn/easzlab/dashboard:$dashboardVer" && \
+##  docker save -o "$imageDir/dashboard_$dashboardVer.tar" "harbor.nisco.cn/easzlab/dashboard:$dashboardVer"
+##else
+##  docker load -i "$imageDir/dashboard_$dashboardVer.tar"
+##fi
+##docker tag "harbor.nisco.cn/easzlab/dashboard:$dashboardVer" "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
+##docker push "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
+##
+### dashboard-metrics-scraper
+##if [[ ! -f "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" ]];then
+##  docker pull "harbor.nisco.cn/easzlab/metrics-scraper:$dashboardMetricsScraperVer" && \
+##  docker save -o "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" "harbor.nisco.cn/easzlab/metrics-scraper:$dashboardMetricsScraperVer"
+##else
+##  docker load -i "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar"
+##fi
+##docker tag "harbor.nisco.cn/easzlab/metrics-scraper:$dashboardMetricsScraperVer" "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
+##docker push "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
+##
   # metrics-server
   if [[ ! -f "$imageDir/metrics-server_$metricsVer.tar" ]];then
     docker pull "harbor.nisco.cn/easzlab/metrics-server:$metricsVer" && \
