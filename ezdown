@@ -586,23 +586,23 @@ function get_extra_images() {
       if [[ ! -f "$imageDir/prometheus-chart_$promChartVer.tar" ]];then
         docker pull harbor.nisco.cn/easzlab/kube-state-metrics:v2.8.2 && \
         docker pull harbor.nisco.cn/easzlab/kube-webhook-certgen:v1.5.1 && \
-        docker pull grafana/grafana:9.4.7 && \
-        docker pull quay.io/kiwigrid/k8s-sidecar:1.22.0 && \
-        docker pull quay.io/prometheus-operator/prometheus-config-reloader:v0.63.0 && \
-        docker pull quay.io/prometheus-operator/prometheus-operator:v0.63.0 && \
-        docker pull quay.io/prometheus/alertmanager:v0.25.0 && \
-        docker pull quay.io/prometheus/node-exporter:v1.5.0 && \
-        docker pull quay.io/prometheus/prometheus:v2.42.0 && \
+        docker pull harbor.nisco.cn/grafana/grafana:9.4.7 && \
+        docker pull harbor.nisco.cn/prometheus/k8s-sidecar:1.22.0 && \
+        docker pull harbor.nisco.cn/prometheus/prometheus-config-reloader:v0.63.0 && \
+        docker pull harbor.nisco.cn/prometheus/prometheus-operator:v0.63.0 && \
+        docker pull harbor.nisco.cn/prometheus/alertmanager:v0.25.0 && \
+        docker pull harbor.nisco.cn/prometheus/node-exporter:v1.5.0 && \
+        docker pull harbor.nisco.cn/prometheus/prometheus:v2.42.0 && \
         docker save -o "$imageDir/prometheus-chart_$promChartVer.tar" \
             harbor.nisco.cn/easzlab/kube-state-metrics:v2.8.2 \
             harbor.nisco.cn/easzlab/kube-webhook-certgen:v1.5.1 \
-            grafana/grafana:9.4.7 \
-            quay.io/kiwigrid/k8s-sidecar:1.22.0 \
-            quay.io/prometheus-operator/prometheus-config-reloader:v0.63.0 \
-            quay.io/prometheus-operator/prometheus-operator:v0.63.0 \
-            quay.io/prometheus/alertmanager:v0.25.0 \
-            quay.io/prometheus/node-exporter:v1.5.0 \
-            quay.io/prometheus/prometheus:v2.42.0
+            harbor.nisco.cn/grafana/grafana:9.4.7 \
+            harbor.nisco.cn/prometheus/k8s-sidecar:1.22.0 \
+            harbor.nisco.cn/prometheus/prometheus-config-reloader:v0.63.0 \
+            harbor.nisco.cn/prometheus/prometheus-operator:v0.63.0 \
+            harbor.nisco.cn/prometheus/alertmanager:v0.25.0 \
+            harbor.nisco.cn/prometheus/node-exporter:v1.5.0 \
+            harbor.nisco.cn/prometheus/prometheus:v2.42.0
       else
         docker load -i "$imageDir/prometheus-chart_$promChartVer.tar"
       fi
@@ -612,17 +612,17 @@ function get_extra_images() {
       docker push easzlab.io.local:5000/prometheus/kube-webhook-certgen:v1.5.1
       docker tag harbor.nisco.cn/grafana/grafana:9.4.7 easzlab.io.local:5000/prometheus/grafana:9.4.7
       docker push easzlab.io.local:5000/prometheus/grafana:9.4.7
-      docker tag quay.io/kiwigrid/k8s-sidecar:1.22.0 easzlab.io.local:5000/prometheus/k8s-sidecar:1.22.0
+      docker tag harbor.nisco.cn/prometheus/k8s-sidecar:1.22.0 easzlab.io.local:5000/prometheus/k8s-sidecar:1.22.0
       docker push easzlab.io.local:5000/prometheus/k8s-sidecar:1.22.0
-      docker tag quay.io/prometheus-operator/prometheus-config-reloader:v0.63.0 easzlab.io.local:5000/prometheus/prometheus-config-reloader:v0.63.0
+      docker tag harbor.nisco.cn/prometheus/prometheus-config-reloader:v0.63.0 easzlab.io.local:5000/prometheus/prometheus-config-reloader:v0.63.0
       docker push easzlab.io.local:5000/prometheus/prometheus-config-reloader:v0.63.0
-      docker tag quay.io/prometheus-operator/prometheus-operator:v0.63.0 easzlab.io.local:5000/prometheus/prometheus-operator:v0.63.0
+      docker tag harbor.nisco.cn/prometheus/prometheus-operator:v0.63.0 easzlab.io.local:5000/prometheus/prometheus-operator:v0.63.0
       docker push easzlab.io.local:5000/prometheus/prometheus-operator:v0.63.0
-      docker tag quay.io/prometheus/alertmanager:v0.25.0 easzlab.io.local:5000/prometheus/alertmanager:v0.25.0
+      docker tag harbor.nisco.cn/prometheus/alertmanager:v0.25.0 easzlab.io.local:5000/prometheus/alertmanager:v0.25.0
       docker push easzlab.io.local:5000/prometheus/alertmanager:v0.25.0
-      docker tag quay.io/prometheus/node-exporter:v1.5.0 easzlab.io.local:5000/prometheus/node-exporter:v1.5.0
+      docker tag harbor.nisco.cn/prometheus/node-exporter:v1.5.0 easzlab.io.local:5000/prometheus/node-exporter:v1.5.0
       docker push easzlab.io.local:5000/prometheus/node-exporter:v1.5.0
-      docker tag quay.io/prometheus/prometheus:v2.42.0 easzlab.io.local:5000/prometheus/prometheus:v2.42.0
+      docker tag harbor.nisco.cn/prometheus/prometheus:v2.42.0 easzlab.io.local:5000/prometheus/prometheus:v2.42.0
       docker push easzlab.io.local:5000/prometheus/prometheus:v2.42.0
       ;;
 
