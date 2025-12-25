@@ -8,7 +8,8 @@ ExecStart={{ bin_dir }}/kube-scheduler \
   --authorization-kubeconfig=/etc/kubernetes/kube-scheduler.kubeconfig \
   --bind-address=0.0.0.0 \
   --kubeconfig=/etc/kubernetes/kube-scheduler.kubeconfig \
-  --leader-elect=true \ --tls-cipher-suites=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA \
+  --leader-elect=true \
+  --tls-cipher-suites=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA \
   --v=2
 Restart=always
 RestartSec=5
