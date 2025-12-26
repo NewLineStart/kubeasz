@@ -65,7 +65,7 @@ INSECURE_REG:
 SANDBOX_IMAGE: "easzlab.io.local:5000/easzlab/pause:__pause__"
 
 # [containerd]容器持久化存储目录
-CONTAINERD_STORAGE_DIR: "/var/lib/containerd"
+CONTAINERD_STORAGE_DIR: "/opt/containerd"
 
 # [docker]容器存储目录
 DOCKER_STORAGE_DIR: "/opt/docker"
@@ -173,7 +173,7 @@ kube_router_ver: "__kube_router__"
 # coredns 自动安装
 dns_install: "yes"
 corednsVer: "__coredns__"
-ENABLE_LOCAL_DNS_CACHE: true
+ENABLE_LOCAL_DNS_CACHE: false
 dnsNodeCacheVer: "__dns_node_cache__"
 # 设置 local dns cache 地址
 LOCAL_DNS_CACHE: "169.254.20.10"

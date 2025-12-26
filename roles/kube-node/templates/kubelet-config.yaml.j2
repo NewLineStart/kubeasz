@@ -36,10 +36,16 @@ enforceNodeAllocatable:
 {% endif %}
 eventBurst: 10
 eventRecordQPS: 5
-evictionHard:
-  imagefs.available: 15%
-  memory.available: 300Mi
+evictionSoft:
+  memory.available: 4Gi
   nodefs.available: 10%
+evictionSoftGracePeriod:
+  memory.available: 1m30s
+  nodefs.available: 2m
+evictionHard:
+  imagefs.available: 5%
+  memory.available: 2Gi
+  nodefs.available: 5%
   nodefs.inodesFree: 5%
 evictionPressureTransitionPeriod: 5m0s
 failSwapOn: true
@@ -54,8 +60,8 @@ imageMinimumGCAge: 2m0s
 {% if KUBE_RESERVED_ENABLED == "yes" %}
 kubeReservedCgroup: /podruntime.slice
 kubeReserved:
-  cpu: 500m
-  memory: 1000Mi
+  cpu: 1000m
+  memory: 2000Mi
   pid: "1000"
 {% endif %}
 kubeAPIBurst: 100
@@ -80,9 +86,10 @@ syncFrequency: 1m0s
 {% if SYS_RESERVED_ENABLED == "yes" %}
 systemReservedCgroup: /system.slice
 systemReserved:
-  cpu: 500m
-  memory: 1000Mi
+  cpu: 2000m
+  memory: 4000Mi
   pid: "5000"
 {% endif %}
 tlsCertFile: {{ ca_dir }}/kubelet.pem
 tlsPrivateKeyFile: {{ ca_dir }}/kubelet-key.pem
+tlsCipherSuites: [TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA]

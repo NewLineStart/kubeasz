@@ -36,7 +36,7 @@
 
   # step2: backup data to the ansible node 
   - name: make a backup on the etcd node
-    shell: "mkdir -p {{ cluster_dir }}/backup && cd {{ cluster_dir }}/backup && \
+    shell: "mkdir -p /opt/backup/etcdBackup && cd /opt/backup/etcdBackup && \
         ETCDCTL_API=3 {{ base_dir }}/bin/etcdctl \
               --endpoints=https://{{ RUNNING_NODE.stdout }}:2379 \
               --cacert={{ cluster_dir }}/ssl/ca.pem \
@@ -45,4 +45,4 @@
         snapshot save snapshot_{{ timestamp.stdout }}.db"
 
   - name: update the latest backup
-    shell: 'cd {{ cluster_dir }}/backup/ && /bin/cp -f snapshot_{{ timestamp.stdout }}.db snapshot.db'
+    shell: 'cd /opt/backup/etcdBackup && /bin/cp -f snapshot_{{ timestamp.stdout }}.db snapshot.db'
