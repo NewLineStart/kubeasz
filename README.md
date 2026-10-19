@@ -1,12 +1,12 @@
-<img alt="kubeasz-logo" width="320" height="100" src="docs/pics/kubeasz.svg">  <a href="docs/mixes/conformance.md"><img align="right" alt="conformance-icon" width="75" height="100" src="https://www.cncf.io/wp-content/uploads/2020/07/certified_kubernetes_color-1.png"></a>
+<img alt="kubeasz-logo" width="320" height="100" src="pics/kubeasz.svg">  <a href="docs/mixes/conformance.md"><img align="right" alt="conformance-icon" width="75" height="100" src="https://www.cncf.io/wp-content/uploads/2020/07/certified_kubernetes_color-1.png"></a>
 
 **kubeasz** 致力于提供快速部署高可用`k8s`集群的工具, 同时也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化；既提供一键安装脚本, 也可以根据`安装指南`分步执行安装各个组件。
 
 **kubeasz** 从每一个单独部件组装到完整的集群，提供最灵活的配置能力，几乎可以设置任何组件的任何参数；同时又为集群创建预置一套运行良好的默认配置，甚至自动化创建适合大规模集群的[BGP Route Reflector网络模式](docs/setup/network-plugin/calico-bgp-rr.md)。
 
 - **集群特性** [Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、[离线安装](docs/setup/offline_install.md)、[多架构支持(amd64/arm64)](docs/setup/multi_platform.md)
-- **集群版本** kubernetes v.1.33, v1.34, v1.35, v1.36
-- **运行时** [containerd](docs/setup/03-container_runtime.md) v2.3.x
+- **集群版本** kubernetes v1.24, v1.25, v1.26, v1.27, v1.28, v1.29, v1.30, v1.31, v1.32, v.1.33, v1.34
+- **运行时** [containerd](docs/setup/03-container_runtime.md) v1.7.x, v2.0.x, v2.1.x
 - **网络** [calico](docs/setup/network-plugin/calico.md), [cilium](docs/setup/network-plugin/cilium.md), [flannel](docs/setup/network-plugin/flannel.md), [kube-ovn](docs/setup/network-plugin/kube-ovn.md), [kube-router](docs/setup/network-plugin/kube-router.md)
 
 
@@ -18,36 +18,44 @@
   <thead>
     <tr>
       <td>Kubernetes</td>
+      <td>1.23</td>
+      <td>1.24-1.28</td>
+      <td>1.29</td>
+      <td>1.30</td>
+      <td>1.31</td>
+      <td>1.32</td>
       <td>1.33</td>
       <td>1.34</td>
-      <td>1.35</td>
-      <td>1.36</td>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>kubeasz</td>
+      <td>3.2.0</td>
+      <td>3.6.2</td>
+      <td>3.6.3</td>
+      <td>3.6.4</td>
+      <td>3.6.5</td>
+      <td>3.6.6</td>
       <td>3.6.7</td>
       <td>3.6.8</td>
-      <td>3.6.10</td>
-      <td>3.7.0</td>
     </tr>
   </tbody>
 </table>
 
 ## 支持系统
 
-- **Alibaba Linux** 3.2104
+- **Alibaba Linux** 2.1903, 3.2104([notes](docs/setup/multi_os.md#Alibaba))
 - **Alma Linux** 8, 9
 - **Anolis OS** 8.x RHCK, 8.x ANCK
-- **RHEL** 8, 9
-- **Debian** 12, 13([notes](docs/setup/multi_os.md#Debian))
-- **Fedora** 36, 37
-- **Kylin Linux Advanced Server V10** 麒麟V10 Tercel, Lance, Halberd
+- **CentOS/RHEL** 7, 8, 9
+- **Debian** 10, 11([notes](docs/setup/multi_os.md#Debian))
+- **Fedora** 34, 35, 36, 37
+- **Kylin Linux Advanced Server V10** 麒麟V10 Tercel, Lance
 - **openEuler** 22.03 LTS, 24.03 LTS([notes](docs/setup/multi_os.md#openEuler))
 - **openSUSE** Leap 15.x([notes](docs/setup/multi_os.md#openSUSE))
 - **Rocky Linux** 8, 9
-- **Ubuntu** 22.04, 24.04
+- **Ubuntu** 16.04, 18.04, 20.04, 22.04, 24.04
 
 能够支持大部分使用systemd的linux发行版，如果安装有问题先请查看[文档](docs/setup/multi_os.md)；如果某个能够支持安装的系统没有在列表中，欢迎提PR 告知。
 
@@ -78,7 +86,7 @@
     <tr>
         <td><strong>常用插件</strong><a href="docs/guide/index.md">+</a></td>
         <td><a href="docs/guide/kubedns.md">DNS</a></td>
-        <td><a href="docs/guide/headlamp.md">headlamp</a></td>
+        <td><a href="docs/guide/dashboard.md">dashboard</a></td>
         <td><a href="docs/guide/metrics-server.md">metrics-server</a></td>
         <td><a href="docs/guide/prometheus.md">prometheus</a></td>
         <td><a href="docs/deprecated/efk.md">efk</a></td>
@@ -113,8 +121,7 @@
 ## 沟通交流
 
 - 微信：k8s&kubeasz实践, 搜索微信号`badtobone`, 请按格式备注（${城市}-${github用户名}）, 验证后加入群聊。
-- 推荐链接
-  - [K8s 统一管理平台](https://github.com/liuhaixiao837-collab/k8smanager)
+- 推荐阅读
   - [kubernetes架构师课程](https://www.toutiao.com/c/user/token/MS4wLjABAAAA0YFomuMNm87NNysXeUsQdI0Tt3gOgz8WG_0B3MzxsmI/?tab=article)
   - [kubernetes-the-hard-way](https://github.com/kelseyhightower/kubernetes-the-hard-way)
   - [feisky-Kubernetes 指南](https://github.com/feiskyer/kubernetes-handbook/blob/master/SUMMARY.md)

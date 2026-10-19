@@ -64,17 +64,8 @@ INSECURE_REG:
 # [.]基础容器镜像
 SANDBOX_IMAGE: "easzlab.io.local:5000/easzlab/pause:__pause__"
 
-# [containerd] root 存储目录，默认：/var/lib/containerd
-CONTAINERD_ROOT_DIR: "/var/lib/containerd"
-
-# [containerd] state 存储目录，默认：/run/containerd
-CONTAINERD_STATE_DIR: "/run/containerd"
-
-# [containerd] config 目录，默认：/etc/containerd
-CONTAINERD_CONFIG_DIR: "/etc/containerd"
-
-# [containerd] systemd service 名称，默认：containerd.service
-CONTAINERD_SERVICE_NAME: "containerd.service"
+# [containerd]容器持久化存储目录
+CONTAINERD_STORAGE_DIR: "/var/lib/containerd"
 
 # [docker]容器存储目录
 DOCKER_STORAGE_DIR: "/var/lib/docker"
@@ -195,9 +186,9 @@ LOCAL_DNS_CACHE: "169.254.20.10"
 metricsserver_install: "yes"
 metricsVer: "__metrics__"
 
-# headlamp 自动安装
-headlamp_install: "no"
-headlampVer: "__headlamp__"
+# dashboard 自动安装
+dashboard_install: "no"
+dashboardVer: "__dashboard__"
 
 # local-storage (local-path-provisioner) 自动安装
 local_path_provisioner_install: "no"
@@ -229,33 +220,58 @@ prom_namespace: "monitor"
 prom_storage_class: ""
 prom_chart_ver: "__prom_chart__"
 
+# minio 自动安装
+minio_install: "no"
+minio_namespace: "minio"
+minio_storage_class: "{{ openebs_lvm_storage_class }}"
+minio_chart_ver: "__minio_chart__"
+minio_root_user: "3aea61ca94177dx"
+minio_root_password: "0f3b19e46dd3aea61ca94177d"
+# 单机版=1，集群版=4以上
+minio_pool_servers: 4
+minio_pool_size: 10Gi
+# 是否启用tls证书，如果未启用则使用http协议
+minio_tls_enabled: false
+# 是否使用权威证书，如果使用需要提前把证书放到目录 roles/cluster-addon/templates/minio/; 并且要求
+# 证书和私钥的名称分别为server.crt和server.key
+minio_with_global_cert: false
+
+# kubeapps 自动安装
+kubeapps_install: "no"
+kubeapps_install_namespace: "kubeapps"
+kubeapps_working_namespace: "default"
+kubeapps_storage_class: "{{ openebs_hostpath_storage_class }}"
+kubeapps_chart_ver: "__kubeapps_chart__"
+
+# nacos 自动安装
+nacos_install: "no"
+nacos_namespace: "nacos"
+nacos_mysql_host: "semisync-mysql-cluster-mysql"
+nacos_mysql_db: "nacos"
+nacos_mysql_port: "3306"
+nacos_mysql_user: "__dbuser__"
+nacos_mysql_password: "__yourpassword__"
+nacos_storage_class: "{{ openebs_lvm_storage_class }}"
+
+# rocketmq 自动安装
+rocketmq_install: "no"
+rocketmq_namespace: "rocketmq"
+rocketmq_storage_class: "{{ openebs_lvm_storage_class }}"
+
 # network-check 自动安装
 network_check_enabled: false 
 network_check_schedule: "*/5 * * * *"
 
-# node-problem-detector 自动安装
-node_problem_detector_install: "no"
-node_problem_detector_ver: "__node_problem_detector__"
-
 # kubeblocks 自动安装
 kubeblocks_ver: "__kubeblocks_ver__"
 kubeblocks_install: "no"
-
-# higress 自动安装
-# higress gateway 只会部署到node with 标签：ingress-controller/provider=higress
-higress_install: "no"
-higress_namespace: "higress-system"
-higress_ver: "__higress__"
 
 # ingress-nginx 自动安装
 # ingress-nginx 只会部署到node with 标签：ingress-controller/provider=ingress-nginx
 ingress_nginx_install: "no"
 ingress_nginx_namespace: "ingress-nginx"
 ingress_nginx_ver: "__ingress_nginx_ver__"
-ingress_nginx_metrics_enabled: false  # 需要先部署prometheus
-
-# argocd 自动安装
-argocd_install: "no"
+ingress_nginx_metrics_enabled: true
 
 
 ############################

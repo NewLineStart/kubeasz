@@ -20,15 +20,11 @@
       when: 'ansible_distribution_file_variety in ["SUSE"]'
     
     - import_tasks: redhat.yml
-      when: 'ansible_distribution in ["Anolis OS", "openEuler", "Kylin Linux Advanced Server"]'
+      when: 'ansible_distribution in ["Anolis OS", "openEuler"]'
     
     # 公共系统参数设置
     - import_tasks: common.yml
     
-    # 可选配置
-    - import_tasks: optional.yml
-      when: 'optional_install == "yes"'
-
     - name: prepare some dirs
       file: name={{ item }} state=directory
       with_items:

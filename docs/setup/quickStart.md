@@ -35,6 +35,7 @@ chmod +x ./ezdown
 
 ``` bash
 # 按需下载
+./ezdown -X dashboard
 ./ezdown -X prometheus
 ...
 ```
@@ -78,7 +79,7 @@ $ kubectl get pod -A      # 验证集群pod状态，默认已安装网络插件�
 $ kubectl get svc -A      # 验证集群服务状态
 ```
 
-- 可选安装 [Headlamp](../guide/headlamp.md) 查看和管理集群
+- 登录 `dashboard`可以查看和管理集群，更多内容请查阅[dashboard文档](../guide/dashboard.md)
 
 ### 5.清理
 

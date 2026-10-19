@@ -9,9 +9,7 @@ controller:
     digest: ''
   dnsPolicy: ClusterFirstWithHostNet
   reportNodeInternalIp: true
-  hostNetwork: false
-  hostPort:
-    enabled: true
+  hostNetwork: true 
 
   # Limit the scope of the controller to a specific namespace
   scope:
@@ -27,11 +25,8 @@ controller:
       cpu: 200m
       memory: 200Mi
 
-  config:
-    proxy-body-size: "0"
-
   admissionWebhooks:
-    enabled: false
+    enabled: true
     patch:
       enabled: true
       image:

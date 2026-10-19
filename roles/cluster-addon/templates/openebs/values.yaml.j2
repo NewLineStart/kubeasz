@@ -1,6 +1,3 @@
-global:
-  imageRegistry: "easzlab.io.local:5000"
-
 localpv-provisioner:
   global:
     imageRegistry: "easzlab.io.local:5000"
@@ -63,8 +60,6 @@ engines:
       enabled: true
     zfs:
       enabled: false
-    hostpath:
-      enabled: true
   replicated:
     mayastor:
       enabled: false

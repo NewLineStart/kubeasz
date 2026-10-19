@@ -20,9 +20,3 @@ clusters/
 *.crt
 *.key
 *.pem
-
-.aone_copilot
-.qoder
-.real
-.codex
-.claude

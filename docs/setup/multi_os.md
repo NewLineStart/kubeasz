@@ -23,12 +23,21 @@ dk ezctl setup xxxx all
 
 ## Debian
 
-- Debian 11：默认可能没有安装iptables，使用kubeasz 安装前需要执行：(仅部署节点需要)
+- Debian 11：默认可能没有安装iptables，使用kubeasz 安装前需要执行：
 
 ``` bash 
 apt update
 
 apt install iptables -y
+```
+
+## Alibaba
+
+- Alibaba Linux 3.2104 LTS：安装前需要设置如下：
+
+``` bash
+# 修改使用dnf包管理
+sed -i 's/package/dnf/g' /etc/kubeasz/roles/prepare/tasks/redhat.yml
 ```
 
 ## openEuler
