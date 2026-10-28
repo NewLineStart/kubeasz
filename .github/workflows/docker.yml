@@ -4,47 +4,46 @@ on:
   push:
     tags:
       - '*.*.*'
-  workflow_dispatch:
+
+
+      
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-
+    name: Build Docker Image
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
+      -
+        name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
+      -
+        name: Env set
+        run: |
+          echo "image_tag=8u361-alpine-zh-jmx-opentelemetry" >> $GITHUB_ENV
+          echo "image_name=easzlab" >> $GITHUB_ENV
+      -
+        name: Set Up QEMU
+        uses: docker/setup-qemu-action@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+      -
+        name: Set Up Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v6
+      -
+        name: Login to Aliyun
+        uses: docker/login-action@v2
         with:
-          images: |
-            ghcr.io/easzlab/kubeasz
-            easzlab/kubeasz
+          registry: registry.cn-hangzhou.aliyuncs.com
+          username: ${{ secrets.ALIYUN_DOCKER_USERNAME }}
+          password: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
 
-      - name: Login to GHCR
-        uses: docker/login-action@v4.6.0
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v4.6.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.HUB_DOCKER_USERNAME }}
+          password: ${{ secrets.HUB_DOCKER_PASSWORD }}
 
       - name: Build and push
         uses: docker/build-push-action@v7
@@ -56,7 +55,7 @@ jobs:
           sbom: true
           labels: ${{ steps.meta.outputs.labels }}
           tags: |
-            ghcr.io/easzlab/kubeasz:latest
-            ghcr.io/easzlab/kubeasz:${{ github.ref_name }}
-            easzlab/kubeasz:latest
-            easzlab/kubeasz:${{ github.ref_name }}
+            ${{ secrets.HUB_DOCKER_USERNAME }}/${{ env.image_name }}:${{ env.image_tag }}
+            ${{ secrets.HUB_DOCKER_USERNAME }}/${{ env.image_name }}:latest
+            registry.cn-hangzhou.aliyuncs.com/${{ secrets.HUB_DOCKER_USERNAME }}/${{ env.image_name }}:${{ env.image_tag }}
+            registry.cn-hangzhou.aliyuncs.com/${{ secrets.HUB_DOCKER_USERNAME }}/${{ env.image_name }}:latest

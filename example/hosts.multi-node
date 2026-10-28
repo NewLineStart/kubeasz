@@ -52,10 +52,10 @@ PROXY_MODE="ipvs"
 SERVICE_CIDR="10.68.0.0/16"
 
 # Cluster CIDR (Pod CIDR), not overlap with node(host) networking
-CLUSTER_CIDR="172.20.0.0/16"
+CLUSTER_CIDR="20.68.0.0/16"
 
 # NodePort Range
-NODE_PORT_RANGE="30000-32767"
+NODE_PORT_RANGE="1-65535"
 
 # Cluster DNS Domain
 CLUSTER_DNS_DOMAIN="cluster.local"

@@ -64,7 +64,8 @@
         name: "{{ K8S_NODENAME }}"
         use: systemd
       when: "ENABLE_SETTING_HOSTNAME|bool"
-    
+
+ 
     # 设置节点名称{{ K8S_NODENAME }} /etc/hosts 解析
     # 1.先确保第一个主节点做好解析
     - name: 设置 k8s_nodename 在 master[0] 节点 /etc/hosts 地址解析
@@ -76,7 +77,7 @@
       delegate_to: "{{ groups.kube_master[0] }}"
       when: "inventory_hostname != K8S_NODENAME"
       tags: set_hosts
-    
+   
     # 2.然后复制给集群所有节点
     - block:
       - name: 获取 master[0] 节点由kubeasz 创建的 /etc/hosts 地址解析

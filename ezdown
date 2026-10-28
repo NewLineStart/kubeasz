@@ -5,7 +5,7 @@
 # 2. to run kubeasz in a container (recommended)
 # @author:   gjmzj
 # @usage:    ./ezdown
-# @repo:     https://github.com/easzlab/kubeasz
+# @repo:     https://github.com/harbor.nisco.cn/easzlab/kubeasz
 #--------------------------------------------------
 # shellcheck disable=SC2155
 set -o nounset
@@ -23,6 +23,9 @@ EXT_BIN_VER=1.13.0
 SYS_PKG_VER=1.0.4
 HARBOR_VER=v2.12.4
 REGISTRY_MIRROR=CN
+# 公司内网存在minio进行下载docker压缩包
+NETWORK_TYPE=IN
+
 
 # images downloaded by default(with 'ezdown -D')
 # https://github.com/projectcalico/calico
@@ -162,11 +165,15 @@ function logger() {
 
 function download_docker() {
   if [[ "$REGISTRY_MIRROR" == CN ]];then
-    DOCKER_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
+    if [[ "$NETWORK_TYPE" == IN ]];then
+	  DOCKER_URL="http://172.29.248.18:9000/install-package/docker/${ARCH}/docker-${DOCKER_VER}.tgz"
+    else
+          DOCKER_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
+    fi
   else
     DOCKER_URL="https://download.docker.com/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
   fi
-
+ 
   if [[ -f "$BASE/down/docker-${DOCKER_VER}.tgz" ]];then
     logger warn "docker binaries already existed"
   else
@@ -222,6 +229,7 @@ EOF
     logger debug "prepare register mirror for $REGISTRY_MIRROR"
     cat > /etc/docker/daemon.json << EOF
 {
+  "bip": "5.5.5.1/24",
   "exec-opts": ["native.cgroupdriver=$CGROUP_DRIVER"],
   "registry-mirrors": [
     "https://docker.1ms.run",
@@ -229,7 +237,13 @@ EOF
     "https://docker.1panel.live",
     "https://proxy.1panel.live",
     "https://hub.rat.dev",
-    "https://docker.amingg.com"
+    "https://docker.amingg.com",
+	"https://hub.firefly.store",
+	"https://registry.dockermirror.com",
+	"https://hub.rat.dev",
+	"https://docker.kejilion.pro",
+	"https://dhub.kubesre.xyz",
+	"https://docker.imgdb.de"
   ],
   "insecure-registries": ["http://easzlab.io.local:5000"],
   "max-concurrent-downloads": 10,
@@ -239,7 +253,7 @@ EOF
     "max-size": "10m",
     "max-file": "3"
     },
-  "data-root": "/var/lib/docker"
+  "data-root": "/opt/docker"
 }
 EOF
   else
@@ -255,7 +269,7 @@ EOF
     "max-size": "10m",
     "max-file": "3"
     },
-  "data-root": "/var/lib/docker"
+  "data-root": "/opt/docker"
 }
 EOF
   fi
@@ -277,8 +291,8 @@ function get_kubeasz() {
 
   if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
     logger info "downloading kubeasz: $KUBEASZ_VER"
-    docker pull "easzlab/kubeasz:$KUBEASZ_VER" && \
-    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "easzlab/kubeasz:$KUBEASZ_VER" || \
+    docker pull "harbor.nisco.cn/easzlab/kubeasz:$KUBEASZ_VER" && \
+    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "harbor.nisco.cn/easzlab/kubeasz:$KUBEASZ_VER" || \
     { logger error "download failed!"; return 1; }
   else
     docker load -i "$imageDir/kubeasz_$KUBEASZ_VER.tar"
@@ -286,7 +300,7 @@ function get_kubeasz() {
 
   docker ps -a |grep -q temp_easz && { logger debug "remove existing container"; docker rm -f temp_easz; }
   logger debug " run a temporary container"
-  docker run -d --name temp_easz easzlab/kubeasz:${KUBEASZ_VER} || { logger error "failed."; exit 1; }
+  docker run -d --name temp_easz harbor.nisco.cn/easzlab/kubeasz:${KUBEASZ_VER} || { logger error "failed."; exit 1; }
 
   [[ -d "$BASE/down" ]] && /bin/mv -f "$BASE/down" /tmp
   [[ -d "$BASE/bin" ]] && /bin/mv -f "$BASE/bin" /tmp
@@ -309,9 +323,9 @@ function get_k8s_bin() {
   logger info "downloading kubernetes: $K8S_BIN_VER binaries"
   rm -rf "$BASE/k8s_bin_tmp"
   docker ps -a |grep -q temp_k8s_bin && { logger debug "remove existing container"; docker rm -f temp_k8s_bin; }
-  docker pull easzlab/kubeasz-k8s-bin:"$K8S_BIN_VER" && \
+  docker pull harbor.nisco.cn/easzlab/kubeasz-k8s-bin:"$K8S_BIN_VER" && \
   logger debug "run a temporary container" && \
-  docker run -d --name temp_k8s_bin easzlab/kubeasz-k8s-bin:${K8S_BIN_VER} && \
+  docker run -d --name temp_k8s_bin harbor.nisco.cn/easzlab/kubeasz-k8s-bin:${K8S_BIN_VER} && \
   logger debug "cp k8s binaries" && \
   docker cp temp_k8s_bin:/k8s "$BASE/k8s_bin_tmp" && \
   /bin/mv -f "$BASE"/k8s_bin_tmp/* "$BASE/bin" && \
@@ -326,9 +340,9 @@ function get_ext_bin() {
   logger info "downloading extral binaries kubeasz-ext-bin:$EXT_BIN_VER"
   rm -rf "$BASE/extra_bin_tmp"
   docker ps -a |grep -q temp_ext_bin && { logger debug "remove existing container"; docker rm -f temp_ext_bin; }
-  docker pull "easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
+  docker pull "harbor.nisco.cn/easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
   logger debug "run a temporary container" && \
-  docker run -d --name temp_ext_bin "easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
+  docker run -d --name temp_ext_bin "harbor.nisco.cn/easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
   logger debug "cp extral binaries" && \
   docker cp temp_ext_bin:/extra "$BASE/extra_bin_tmp" && \
   /bin/mv -f "$BASE"/extra_bin_tmp/* "$BASE/bin" && \
@@ -342,9 +356,9 @@ function get_sys_pkg() {
 
   docker ps -a |grep -q temp_sys_pkg && { logger debug "remove existing container"; docker rm -f temp_sys_pkg; }
   logger info "downloading system packages kubeasz-sys-pkg:$SYS_PKG_VER"
-  docker pull "easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
+  docker pull "harbor.nisco.cn/easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
   logger debug "run a temporary container" && \
-  docker run -d --name temp_sys_pkg "easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
+  docker run -d --name temp_sys_pkg "harbor.nisco.cn/easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
   logger debug "cp system packages" && \
   docker cp temp_sys_pkg:/packages "$BASE/down" && \
   logger debug "stop&remove temporary container" && \
@@ -356,9 +370,9 @@ function get_harbor_offline_pkg() {
 
   docker ps -a |grep -q temp_harbor && { logger debug "remove existing container"; docker rm -f temp_harbor; }
   logger info "downloading harbor-offline:$HARBOR_VER"
-  docker pull "easzlab/harbor-offline:$HARBOR_VER" && \
+  docker pull "harbor.nisco.cn/easzlab/harbor-offline:$HARBOR_VER" && \
   logger debug "run a temporary container" && \
-  docker run -d --name temp_harbor "easzlab/harbor-offline:$HARBOR_VER" && \
+  docker run -d --name temp_harbor "harbor.nisco.cn/easzlab/harbor-offline:$HARBOR_VER" && \
   logger debug "cp harbor-offline installer package" && \
   docker cp "temp_harbor:/harbor-offline-installer-$HARBOR_VER.tgz" "$BASE/down" && \
   logger debug "stop&remove temporary container" && \
@@ -369,13 +383,13 @@ function get_default_images() {
   logger info "download default images, then upload to the local registry"
 
   IMAGES=(\
-      "calico/cni:$calicoVer" \
-      "calico/kube-controllers:$calicoVer" \
-      "calico/node:$calicoVer" \
-      "coredns/coredns:$corednsVer" \
-      "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" \
-      "easzlab/metrics-server:$metricsVer" \
-      "easzlab/pause:$pauseVer" \
+      "harbor.nisco.cn/calico/cni:$calicoVer" \
+      "harbor.nisco.cn/calico/kube-controllers:$calicoVer" \
+      "harbor.nisco.cn/calico/node:$calicoVer" \
+      "harbor.nisco.cn/coredns/coredns:$corednsVer" \
+      "harbor.nisco.cn/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" \
+      "harbor.nisco.cn/easzlab/metrics-server:$metricsVer" \
+      "harbor.nisco.cn/easzlab/pause:$pauseVer" \
     )
   down_and_save_images
 }
@@ -386,122 +400,122 @@ function get_extra_images() {
   case "$1" in
     cilium)
       IMAGES=(\
-          "cilium/cilium:v$ciliumVer" \
-          "cilium/operator-generic:v$ciliumVer" \
-          "cilium/hubble-relay:v$ciliumVer" \
-          "cilium/hubble-ui-backend:v0.13.2" \
-          "cilium/hubble-ui:v0.13.2" \
+          "harbor.nisco.cn/cilium/cilium:v$ciliumVer" \
+          "harbor.nisco.cn/cilium/operator-generic:v$ciliumVer" \
+          "harbor.nisco.cn/cilium/hubble-relay:v$ciliumVer" \
+          "harbor.nisco.cn/cilium/hubble-ui-backend:v0.13.2" \
+          "harbor.nisco.cn/cilium/hubble-ui:v0.13.2" \
         )
       down_and_save_images cilium
       ;;
 
     flannel)
       IMAGES=(\
-          "ghcr.io/flannel-io/flannel:v0.27.3" \
-          "ghcr.io/flannel-io/flannel-cni-plugin:v1.7.1-flannel1" \
+          "harbor.nisco.cn/flannel-io/flannel:v0.27.3" \
+          "harbor.nisco.cn/flannel-io/flannel-cni-plugin:v1.7.1-flannel1" \
         )
       down_and_save_images flannel
       ;;
 
     ingress-nginx)
       IMAGES=(\
-          "easzlab/ingress-nginx-controller:v1.13.0" \
-          "easzlab/kube-webhook-certgen:v1.6.0" \
+          "harbor.nisco.cn/easzlab/ingress-nginx-controller:v1.13.0" \
+          "harbor.nisco.cn/easzlab/kube-webhook-certgen:v1.6.0" \
         )
       down_and_save_images
       ;;
 
     dashboard)
       IMAGES=(\
-          "kubernetesui/dashboard-api:1.12.0" \
-          "kubernetesui/dashboard-auth:1.2.4" \
-          "kubernetesui/dashboard-metrics-scraper:1.2.2" \
-          "kubernetesui/dashboard-web:1.6.2" \
-          "kong:3.8" \
+          "harbor.nisco.cn/kubernetesui/dashboard-api:1.12.0" \
+          "harbor.nisco.cn/kubernetesui/dashboard-auth:1.2.4" \
+          "harbor.nisco.cn/kubernetesui/dashboard-metrics-scraper:1.2.2" \
+          "harbor.nisco.cn/kubernetesui/dashboard-web:1.6.2" \
+          "harbor.nisco.cn/kubernetesui/kong:3.8" \
         )
       down_and_save_images kubernetesui
       ;;
 
     kubeapps)
       IMAGES=(\
-          "bitnami/kubeapps-apis:2.7.0-debian-11-r10" \
-          "bitnami/kubeapps-apprepository-controller:2.7.0-scratch-r0" \
-          "bitnami/kubeapps-asset-syncer:2.7.0-scratch-r0" \
-          "bitnami/kubeapps-dashboard:2.7.0-debian-11-r12" \
-          "bitnami/nginx:1.23.4-debian-11-r18" \
-          "bitnami/postgresql:15.3.0-debian-11-r0" \
+          "harbor.nisco.cn/bitnami/kubeapps-apis:2.7.0-debian-11-r10" \
+          "harbor.nisco.cn/bitnami/kubeapps-apprepository-controller:2.7.0-scratch-r0" \
+          "harbor.nisco.cn/bitnami/kubeapps-asset-syncer:2.7.0-scratch-r0" \
+          "harbor.nisco.cn/bitnami/kubeapps-dashboard:2.7.0-debian-11-r12" \
+          "harbor.nisco.cn/bitnami/nginx:1.23.4-debian-11-r18" \
+          "harbor.nisco.cn/bitnami/postgresql:15.3.0-debian-11-r0" \
         )
       down_and_save_images bitnami
       ;;
 
     kubeblocks)
       IMAGES=(\
-          "easzlab/snapshot-controller:v8.3.0" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-charts:${kubeblocksVer}" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks:${kubeblocksVer}" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:${kubeblocksVer}" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-dataprotection:${kubeblocksVer}" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/datasafed:0.2.0" \
+          "harbor.nisco.cn/easzlab/snapshot-controller:v8.3.0" \
+          "harbor.nisco.cn/apecloud/kubeblocks-charts:${kubeblocksVer}" \
+          "harbor.nisco.cn/apecloud/kubeblocks:${kubeblocksVer}" \
+          "harbor.nisco.cn/apecloud/kubeblocks-tools:${kubeblocksVer}" \
+          "harbor.nisco.cn/apecloud/kubeblocks-dataprotection:${kubeblocksVer}" \
+          "harbor.nisco.cn/apecloud/datasafed:0.2.0" \
         )
       down_and_save_images apecloud
       ;;
 
     kb-addon-mysql)
       IMAGES=(\
-          "apecloud/mysql_audit_log:8.0.33" \
-          "apecloud/xtrabackup:8.0" \
-          "apecloud/jemalloc:5.3.0" \
-          "apecloud/syncer:0.5.0" \
-          "apecloud/mysql:8.0.39" \
-          "apecloud/mysqld-exporter:0.15.1" \
-          "apecloud/proxysql:2.4.4" \
-          "apecloud/percona-xtrabackup:8.0" \
-          "apecloud/wal-g-mysql:2.0.1-1-ubuntu" \
+          "harbor.nisco.cn/apecloud/mysql_audit_log:8.0.33" \
+          "harbor.nisco.cn/apecloud/xtrabackup:8.0" \
+          "harbor.nisco.cn/apecloud/jemalloc:5.3.0" \
+          "harbor.nisco.cn/apecloud/syncer:0.5.0" \
+          "harbor.nisco.cn/apecloud/mysql:8.0.39" \
+          "harbor.nisco.cn/apecloud/mysqld-exporter:0.15.1" \
+          "harbor.nisco.cn/apecloud/proxysql:2.4.4" \
+          "harbor.nisco.cn/apecloud/percona-xtrabackup:8.0" \
+          "harbor.nisco.cn/apecloud/wal-g-mysql:2.0.1-1-ubuntu" \
         )
       down_and_save_images apecloud
       ;;
 
     kb-addon-pg)
       IMAGES=(\
-          "apecloud/spilo:16.4.0" \
-          "apecloud/dbctl:0.1.7" \
-          "apecloud/pgbouncer:1.19.0" \
-          "apecloud/postgres-exporter:v0.15.0" \
+          "harbor.nisco.cn/apecloud/spilo:16.4.0" \
+          "harbor.nisco.cn/apecloud/dbctl:0.1.7" \
+          "harbor.nisco.cn/apecloud/pgbouncer:1.19.0" \
+          "harbor.nisco.cn/apecloud/postgres-exporter:v0.15.0" \
         )
       down_and_save_images apecloud
       ;;
 
     kb-addon-redis)
       IMAGES=(\
-          "apecloud/dbctl:0.1.7" \
-          "apecloud/agamotto:0.1.2-beta.1" \
-          "apecloud/redis-stack-server:7.2.0-v14" \
+          "harbor.nisco.cn/apecloud/dbctl:0.1.7" \
+          "harbor.nisco.cn/apecloud/agamotto:0.1.2-beta.1" \
+          "harbor.nisco.cn/apecloud/redis-stack-server:7.2.0-v14" \
         )
       down_and_save_images apecloud
       ;;
 
     kb-addon-mongodb)
       IMAGES=(\
-          "apecloud/syncer:0.3.7" \
-          "apecloud/mongo:5.0.30" \
+          "harbor.nisco.cn/apecloud/syncer:0.3.7" \
+          "harbor.nisco.cn/apecloud/mongo:5.0.30" \
         )
       down_and_save_images apecloud
       ;;
 
     kb-addon-elasticsearch)
       IMAGES=(\
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/elasticsearch-plugins:8.8.2" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/elasticsearch:8.8.2" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/elasticsearch-exporter:v1.7.0" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/curl-jq:0.1.0" \
+          "harbor.nisco.cn/apecloud/elasticsearch-plugins:8.8.2" \
+          "harbor.nisco.cn/apecloud/elasticsearch:8.8.2" \
+          "harbor.nisco.cn/apecloud/elasticsearch-exporter:v1.7.0" \
+          "harbor.nisco.cn/apecloud/curl-jq:0.1.0" \
         )
       down_and_save_images apecloud
       ;;
 
     kb-addon-clickhouse)
       IMAGES=(\
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/busybox:1.36" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/clickhouse:24.8.3-debian-12-r1" \
+          "harbor.nisco.cn/apecloud/busybox:1.36" \
+          "harbor.nisco.cn/apecloud/clickhouse:24.8.3-debian-12-r1" \
         )
       down_and_save_images apecloud
       ;;
@@ -515,89 +529,89 @@ function get_extra_images() {
 
     kube-router)
       IMAGES=(\
-          "cloudnativelabs/kube-router:$kubeRouterVer" \
+          "harbor.nisco.cn/cloudnativelabs/kube-router:$kubeRouterVer" \
         )
       down_and_save_images cloudnativelabs
       ;;
 
     local-path-provisioner)
       IMAGES=(\
-          "rancher/local-path-provisioner:$localpathProvisionerVer" \
+          "harbor.nisco.cn/rancher/local-path-provisioner:$localpathProvisionerVer" \
         )
       down_and_save_images rancher
       ;;
 
     minio)
       IMAGES=(\
-          "quay.io/minio/operator:v${minioOperatorVer}" \
-          "quay.io/minio/operator-sidecar:v7.0.1" \
-          "quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z" \
+          "harbor.nisco.cn/minio/operator:v${minioOperatorVer}" \
+          "harbor.nisco.cn/minio/operator-sidecar:v7.0.1" \
+          "harbor.nisco.cn/minio/minio:RELEASE.2025-04-08T15-41-24Z" \
         )
       down_and_save_images minio
       ;;
 
     nacos)
       IMAGES=(\
-          "nacos/nacos-server:v2.4.3" \
-          "nacos/nacos-peer-finder-plugin:1.1" \
+          "harbor.nisco.cn/nacos/nacos-server:v2.4.3" \
+          "harbor.nisco.cn/nacos/nacos-peer-finder-plugin:1.1" \
         )
       down_and_save_images nacos
       ;;
 
     network-check)
       IMAGES=(\
-          "easzlab/json-mock:v1.3.0" \
-          "easzlab/alpine-curl:v7.85.0" \
+          "harbor.nisco.cn/easzlab/json-mock:v1.3.0" \
+          "harbor.nisco.cn/easzlab/alpine-curl:v7.85.0" \
         )
       down_and_save_images
       ;;
 
     nfs-provisioner)
       IMAGES=(\
-          "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" \
+          "harbor.nisco.cn/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" \
         )
       down_and_save_images
       ;;
 
     openebs)
       IMAGES=(\
-          "bitnami/kubectl:1.25.15" \
-          "openebs/provisioner-localpv:4.3.0" \
-          "openebs/linux-utils:4.2.0" \
-          "openebs/lvm-driver:1.7.0" \
-          "easzlab/csi-node-driver-registrar:v2.13.0" \
-          "easzlab/csi-resizer:v1.11.2" \
-          "easzlab/csi-snapshotter:v7.0.0" \
-          "easzlab/csi-provisioner:v5.2.0" \
-          "easzlab/snapshot-controller:v7.0.0" \
+          "harbor.nisco.cn/bitnami/kubectl:1.25.15" \
+          "harbor.nisco.cn/openebs/provisioner-localpv:4.3.0" \
+          "harbor.nisco.cn/openebs/linux-utils:4.2.0" \
+          "harbor.nisco.cn/openebs/lvm-driver:1.7.0" \
+          "harbor.nisco.cn/easzlab/csi-node-driver-registrar:v2.13.0" \
+          "harbor.nisco.cn/easzlab/csi-resizer:v1.11.2" \
+          "harbor.nisco.cn/easzlab/csi-snapshotter:v7.0.0" \
+          "harbor.nisco.cn/easzlab/csi-provisioner:v5.2.0" \
+          "harbor.nisco.cn/easzlab/snapshot-controller:v7.0.0" \
         )
       down_and_save_images openebs
       ;;
 
     rocketmq)
       IMAGES=(\
-          "apache/rocketmq-operator:latest" \
-          "apacherocketmq/rocketmq-broker:4.5.0-alpine-operator-0.3.0" \
-          "apacherocketmq/rocketmq-nameserver:4.5.0-alpine-operator-0.3.0" \
-          "apacherocketmq/rocketmq-console:2.0.0" \
+          "harbor.nisco.cn/apache/rocketmq-operator:latest" \
+          "harbor.nisco.cn/apacherocketmq/rocketmq-broker:4.5.0-alpine-operator-0.3.0" \
+          "harbor.nisco.cn/apacherocketmq/rocketmq-nameserver:4.5.0-alpine-operator-0.3.0" \
+          "harbor.nisco.cn/apacherocketmq/rocketmq-console:2.0.0" \
         )
       down_and_save_images rocketmq
       ;;
 
     prometheus)
       IMAGES=(\
-          "easzlab/kube-state-metrics:v2.16.0" \
-          "easzlab/kube-webhook-certgen:v1.6.0" \
+          "harbor.nisco.cn/easzlab/kube-state-metrics:v2.16.0" \
+          "harbor.nisco.cn/easzlab/kube-webhook-certgen:v1.6.0" \
         )
       down_and_save_images
       IMAGES=(\
-          "grafana/grafana:12.0.2" \
-          "quay.io/kiwigrid/k8s-sidecar:1.30.5" \
-          "quay.io/prometheus-operator/prometheus-config-reloader:v0.83.0" \
-          "quay.io/prometheus-operator/prometheus-operator:v0.83.0" \
-          "quay.io/prometheus/alertmanager:v0.28.1" \
-          "quay.io/prometheus/node-exporter:v1.9.1" \
-          "quay.io/prometheus/prometheus:v3.4.2" \
+          "harbor.nisco.cn/grafana/grafana:12.0.2" \
+          "harbor.nisco.cn/prometheus/k8s-sidecar:1.30.5" \
+          "harbor.nisco.cn/prometheus/prometheus-config-reloader:v0.83.0" \
+          "harbor.nisco.cn/prometheus/prometheus-operator:v0.83.0" \
+          "harbor.nisco.cn/prometheus/alertmanager:v0.28.1" \
+          "harbor.nisco.cn/prometheus/node-exporter:v1.9.1" \
+          "harbor.nisco.cn/prometheus/prometheus:v3.4.2" \
         )
       down_and_save_images prometheus
       ;;
@@ -650,7 +664,7 @@ function start_local_registry() {
 
   if [[ ! -f "$imageDir/registry-2.tar" ]];then
     docker pull "registry:2" && \
-    docker save -o "$imageDir/registry-2.tar" "registry:2"
+    docker save -o "$imageDir/registry-2.tar" "harbor.nisco.cn/easzlab/registry:2"
   fi
 
   logger info "start local registry ..."
@@ -661,7 +675,7 @@ function start_local_registry() {
         --network host \
         --restart always \
         --volume /opt/kube/registry:/var/lib/registry \
-        registry:2
+        harbor.nisco.cn/easzlab/registry:2
 
   sed -i "/easzlab.io.local/d" /etc/hosts
   echo "127.0.0.1  easzlab.io.local" >> /etc/hosts
@@ -679,8 +693,8 @@ function start_kubeasz_docker() {
 
   if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
     logger info "downloading kubeasz: $KUBEASZ_VER"
-    docker pull "easzlab/kubeasz:$KUBEASZ_VER" && \
-    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "easzlab/kubeasz:$KUBEASZ_VER"
+    docker pull "harbor.nisco.cn/easzlab/kubeasz:$KUBEASZ_VER" && \
+    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "harbor.nisco.cn/easzlab/kubeasz:$KUBEASZ_VER"
   else
     docker load -i "$imageDir/kubeasz_$KUBEASZ_VER.tar"
   fi
@@ -709,7 +723,7 @@ function start_kubeasz_docker() {
       --volume /root/.kube:/root/.kube \
       --volume /root/.ssh:/root/.ssh \
       --volume /etc/docker:/etc/docker \
-      easzlab/kubeasz:${KUBEASZ_VER}
+      harbor.nisco.cn/easzlab/kubeasz:${KUBEASZ_VER}
 }
 
 function clean_container() {
