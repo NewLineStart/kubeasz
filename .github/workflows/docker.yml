@@ -74,6 +74,8 @@ jobs:
           provenance: mode=max
           sbom: true
           labels: ${{ steps.meta.outputs.labels }}
+          add-hosts: |
+            harbor.nisco.cn:58.213.134.168
           tags: |
             ${{ secrets.HUB_DOCKER_USERNAME }}/${{ env.image_name }}:${{ github.ref_name }}
             ${{ secrets.HUB_DOCKER_USERNAME }}/${{ env.image_name }}:latest
