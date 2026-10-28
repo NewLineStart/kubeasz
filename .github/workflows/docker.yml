@@ -18,9 +18,22 @@ jobs:
         uses: actions/checkout@v3
 
       -
+        name: Setup Custom Hosts
+        run: |
+          # 格式：IP地址 域名
+          # 如果你的私有仓库域名是 registry.example.com，将其替换为实际的 IP 和域名
+          sudo sh -c 'echo "58.213.134.168 harbor.nisco.cn" >> /etc/hosts'
+          
+          # 如果有多个域名，可以追加多行：
+          # sudo sh -c 'echo "10.0.0.100 another-domain.com" >> /etc/hosts'
+          
+          # 验证是否写入成功
+          cat /etc/hosts
+
+      -
         name: Env set
         run: |
-          echo "image_name=easzlab" >> $GITHUB_ENV
+          echo "image_name=kubeasz" >> $GITHUB_ENV
       -
         name: Set Up QEMU
         uses: docker/setup-qemu-action@v2
@@ -36,6 +49,14 @@ jobs:
           registry: registry.cn-hangzhou.aliyuncs.com
           username: ${{ secrets.ALIYUN_DOCKER_USERNAME }}
           password: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
+
+      -
+        name: Login to Nisco
+        uses: docker/login-action@v2
+        with:
+          registry: harbor.nisco.cn
+          username: ${{ secrets.NISCO_DOCKER_USERNAME }}
+          password: ${{ secrets.NISCO_DOCKER_PASSWORD }}
 
       -
         name: Login to DockerHub
@@ -54,7 +75,8 @@ jobs:
           sbom: true
           labels: ${{ steps.meta.outputs.labels }}
           tags: |
-            ${{ secrets.HUB_DOCKER_USERNAME }}/${{ env.image_name }}:${{ env.image_tag }}
+            ${{ secrets.HUB_DOCKER_USERNAME }}/${{ env.image_name }}:${{ github.ref_name }}
             ${{ secrets.HUB_DOCKER_USERNAME }}/${{ env.image_name }}:latest
-            registry.cn-hangzhou.aliyuncs.com/${{ secrets.HUB_DOCKER_USERNAME }}/${{ env.image_name }}:${{ env.image_tag }}
+            harbor.nisco.cn/easzlab/${{ env.image_name }}:${{ github.ref_name }}
+            registry.cn-hangzhou.aliyuncs.com/${{ secrets.HUB_DOCKER_USERNAME }}/${{ env.image_name }}:${{ github.ref_name }}
             registry.cn-hangzhou.aliyuncs.com/${{ secrets.HUB_DOCKER_USERNAME }}/${{ env.image_name }}:latest
