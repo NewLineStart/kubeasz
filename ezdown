@@ -411,8 +411,8 @@ function get_extra_images() {
 
     flannel)
       IMAGES=(\
-          "harbor.nisco.cn/flannel-io/flannel:v0.27.3" \
-          "harbor.nisco.cn/flannel-io/flannel-cni-plugin:v1.7.1-flannel1" \
+          "harbor.nisco.cn/flannel/flannel:v0.27.3" \
+          "harbor.nisco.cn/flannel/flannel-cni-plugin:v1.7.1-flannel1" \
         )
       down_and_save_images flannel
       ;;
